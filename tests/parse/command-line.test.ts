@@ -64,7 +64,7 @@ describe('execute — failing loudly', () => {
   })
 
   it('sends rebase -i to the todo panel rather than guessing', () => {
-    expect(() => execute(repo, 'rebase -i HEAD~3')).toThrow(/panel todo/)
+    expect(() => execute(repo, 'rebase -i HEAD~3')).toThrow(/panel “Rebase interaktif”/)
   })
 
   it('defaults reset to --mixed, as git-reset(1) specifies', () => {
