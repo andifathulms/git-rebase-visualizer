@@ -9,9 +9,48 @@
 import type { Oid } from '@/lib/hash'
 import type { Signature } from './objects'
 import { emptyStore, type ObjectStore } from './store'
-import type { Head, RefMap } from './refs'
+import type { Head, RefMap, RefName } from './refs'
 import type { Reflog } from './reflog'
 import type { FileMap } from './tree'
+
+/** One line of a `rebase -i` todo list. git-rebase(1), "Interactive Mode". */
+export interface RebaseStep {
+  readonly action: 'pick' | 'reword' | 'squash' | 'fixup' | 'drop'
+  readonly oid: Oid
+  /** Replacement message for `reword`, or the combined one for `squash`. */
+  readonly message?: string
+}
+
+/**
+ * An operation stopped part-way — what real git records in MERGE_HEAD or
+ * .git/rebase-merge. It is state, not a modal: the user resolves files, stages
+ * them, and continues or aborts, exactly as at the command line.
+ */
+export type PendingOperation =
+  | {
+      readonly type: 'merge'
+      readonly theirs: Oid
+      readonly theirsLabel: string
+      readonly message: string
+      readonly conflicts: readonly string[]
+    }
+  | {
+      readonly type: 'rebase'
+      readonly onto: Oid
+      /** The branch being replayed, or null when rebasing a detached HEAD. */
+      readonly branch: RefName | null
+      readonly originalHead: Oid
+      readonly todo: readonly RebaseStep[]
+      /** Old oid → new oid, as each commit is copied. Drives the animation. */
+      readonly replaced: readonly { readonly from: Oid; readonly to: Oid }[]
+      readonly conflicts: readonly string[]
+    }
+  | {
+      readonly type: 'cherry-pick'
+      readonly remaining: readonly Oid[]
+      readonly current: Oid
+      readonly conflicts: readonly string[]
+    }
 
 export interface Identity {
   readonly name: string
@@ -50,6 +89,8 @@ export interface Repository {
    * resets the index and working tree".
    */
   readonly worktree: FileMap
+  /** A merge, rebase, or cherry-pick stopped at a conflict. */
+  readonly pending: PendingOperation | null
 }
 
 export const INITIAL_BRANCH = 'refs/heads/main'
@@ -65,6 +106,7 @@ export function emptyRepository(identity: Identity = DEFAULT_IDENTITY): Reposito
     identity,
     index: {},
     worktree: {},
+    pending: null,
   }
 }
 
