@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Comparison } from '@/components/compare/Comparison'
+import { SiteHeader } from '@/components/site/SiteHeader'
 import { LOCALES, isLocale } from '@/lib/i18n/locales'
 import { UI } from '@/lib/i18n/ui'
 
@@ -10,31 +11,33 @@ export function generateStaticParams() {
 
 export default function ComparePage({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound()
-  const t = UI[params.locale]
-  const en = params.locale === 'en'
+  const locale = params.locale
+  const t = UI[locale]
+  const en = locale === 'en'
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <p className="label">{t.compare}</p>
-      <h1 className="mt-2 font-display text-3xl uppercase tracking-tight">
-        {en ? 'Two ways to integrate' : 'Dua cara menggabungkan'}
-      </h1>
-      <p className="mt-3 max-w-2xl leading-relaxed text-ink/75">
-        {en
-          ? 'The same starting state, two integrations side by side. Look at the shape of the history, then look at the file content.'
-          : 'Keadaan awal yang sama, dua integrasi berdampingan. Perhatikan bentuk riwayatnya, lalu perhatikan isi filenya.'}
-      </p>
+    <>
+      <SiteHeader locale={locale} path="/banding" />
 
-      <div className="mt-8">
-        <Comparison locale={params.locale} />
-      </div>
+      <main id="main" className="mx-auto max-w-6xl px-6 pb-20 pt-10">
+        <p className="label">{t.compare}</p>
+        <h1 className="mt-3 font-display text-3xl uppercase tracking-tight sm:text-4xl">
+          {en ? 'Two ways to integrate' : 'Dua cara menggabungkan'}
+        </h1>
+        <p className="mt-4 max-w-prose text-[17px] leading-relaxed text-muted">
+          {en
+            ? 'The same starting state, two integrations side by side. Look at the shape of the history, then look at the file content — the second one is the surprise.'
+            : 'Keadaan awal yang sama, dua integrasi berdampingan. Perhatikan bentuk riwayatnya, lalu perhatikan isi filenya — yang kedua itu kejutannya.'}
+        </p>
 
-      <Link
-        href={`/${params.locale}/repo`}
-        className="mt-10 inline-block font-mono text-xs text-catalogue underline"
-      >
-        {en ? '→ try it yourself in the repository' : '→ coba sendiri di repositori'}
-      </Link>
-    </main>
+        <div className="mt-10">
+          <Comparison locale={locale} />
+        </div>
+
+        <Link href={`/${locale}/repo`} className="btn-secondary mt-10 px-4 py-2">
+          {en ? 'Try it yourself in the sandbox' : 'Coba sendiri di sandbox'}
+        </Link>
+      </main>
+    </>
   )
 }

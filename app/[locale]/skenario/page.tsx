@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { SiteHeader } from '@/components/site/SiteHeader'
 import { SCENARIOS } from '@/data/scenarios'
 import { LOCALES, isLocale } from '@/lib/i18n/locales'
 import { UI } from '@/lib/i18n/ui'
@@ -15,45 +16,54 @@ export default function ScenarioLibrary({ params }: { params: { locale: string }
   const en = locale === 'en'
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
-      <p className="label">{en ? 'Scenario library' : 'Perpustakaan skenario'}</p>
-      <h1 className="mt-2 font-display text-3xl uppercase tracking-tight">
-        {en ? 'Start here' : 'Mulai dari sini'}
-      </h1>
-      <p className="mt-3 max-w-2xl leading-relaxed text-ink/75">
-        {en
-          ? 'Each scenario is a script of commands, not a snapshot — it replays when you open it, so what you see cannot disagree with what the commands actually do.'
-          : 'Setiap skenario adalah skrip perintah, bukan snapshot — dijalankan ulang saat dibuka, jadi keadaannya tidak mungkin berbeda dari apa yang perintahnya benar-benar lakukan.'}
-      </p>
+    <>
+      <SiteHeader locale={locale} path="/skenario" />
 
-      <ul className="mt-8 space-y-4">
-        {SCENARIOS.map((scenario) => (
-          <li key={scenario.id} className="border border-ink/20 p-4">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="font-display text-lg uppercase tracking-[0.08em]">{scenario.title[locale]}</h2>
-              <code className="font-mono text-[11px] text-faded">{scenario.id}</code>
-            </div>
-            <p className="mt-2 max-w-2xl leading-relaxed text-ink/75">{scenario.lesson[locale]}</p>
-            <p className="mt-3 font-mono text-xs text-ink/70">
-              {t.thenTry}: <span className="text-stamp">{scenario.next.command}</span> —{' '}
-              {scenario.next.why[locale]}
-            </p>
-            <Link
-              href={`/${params.locale}/repo?skenario=${scenario.id}`}
-              className="mt-4 inline-block border border-catalogue px-3 py-1 font-display text-[11px] uppercase tracking-[0.16em] text-catalogue"
-            >
-              {en ? 'Open in the repository' : 'Buka di repositori'}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <main id="main" className="mx-auto max-w-5xl px-6 pb-20 pt-10">
+        <p className="label">{en ? 'Scenario library' : 'Perpustakaan skenario'}</p>
+        <h1 className="mt-3 font-display text-3xl uppercase tracking-tight sm:text-4xl">
+          {en ? 'Start here' : 'Mulai dari sini'}
+        </h1>
+        <p className="mt-4 max-w-prose text-[17px] leading-relaxed text-muted">
+          {en
+            ? 'Each scenario is a script of commands, not a snapshot — it replays when you open it, so what you see cannot disagree with what the commands actually do. Every one stops just before the interesting command and names it.'
+            : 'Setiap skenario adalah skrip perintah, bukan snapshot — dijalankan ulang saat dibuka, jadi keadaannya tidak mungkin berbeda dari apa yang perintahnya benar-benar lakukan. Semuanya berhenti tepat sebelum perintah yang menarik, dan menyebutkan namanya.'}
+        </p>
 
-      <Link
-        href={`/${params.locale}`}
-        className="mt-10 inline-block font-mono text-xs text-catalogue underline"
-      >
-        {en ? '← back' : '← kembali'}
-      </Link>
-    </main>
+        <ul className="mt-10 grid gap-4 md:grid-cols-2">
+          {SCENARIOS.map((scenario) => (
+            <li key={scenario.id} className="panel">
+              <div className="panel-body flex h-full flex-col gap-3">
+                <div>
+                  <h2 className="font-display text-[17px] uppercase leading-snug tracking-[0.06em]">
+                    {scenario.title[locale]}
+                  </h2>
+                  <code className="mt-1 block font-mono text-[11.5px] text-muted">
+                    {scenario.id}
+                  </code>
+                </div>
+
+                <p className="text-[15px] leading-relaxed text-muted">{scenario.lesson[locale]}</p>
+
+                <p className="text-[13px] leading-relaxed text-muted">
+                  <span className="label">{t.thenTry}</span>{' '}
+                  <code className="border border-stamp/40 bg-stamp-tint px-1.5 py-0.5 font-mono text-[12.5px] text-stamp">
+                    {scenario.next.command}
+                  </code>{' '}
+                  — {scenario.next.why[locale]}
+                </p>
+
+                <Link
+                  href={`/${locale}/repo?skenario=${scenario.id}`}
+                  className="btn-primary mt-auto self-start px-4 py-2"
+                >
+                  {en ? 'Open in the sandbox' : 'Buka di sandbox'}
+                </Link>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </main>
+    </>
   )
 }
