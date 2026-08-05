@@ -1,0 +1,229 @@
+{
+  "feature-behind-main": {
+    "refs": {
+      "refs/heads/fitur": "D",
+      "refs/heads/main": "B"
+    },
+    "head": "fitur",
+    "commits": {
+      "A": {
+        "parents": [],
+        "treeGroup": 0
+      },
+      "B": {
+        "parents": [
+          "A"
+        ],
+        "treeGroup": 1
+      },
+      "C": {
+        "parents": [
+          "B"
+        ],
+        "treeGroup": 2
+      },
+      "D": {
+        "parents": [
+          "C"
+        ],
+        "treeGroup": 3
+      }
+    },
+    "marks": {
+      "sebelum-rebase": {
+        "present": true,
+        "reachable": false
+      }
+    },
+    "reachableCount": 4
+  },
+  "merge-instead-of-rebase": {
+    "refs": {
+      "refs/heads/fitur": "C",
+      "refs/heads/main": "M"
+    },
+    "head": "main",
+    "commits": {
+      "A": {
+        "parents": [],
+        "treeGroup": 0
+      },
+      "B": {
+        "parents": [
+          "A"
+        ],
+        "treeGroup": 1
+      },
+      "C": {
+        "parents": [
+          "A"
+        ],
+        "treeGroup": 2
+      },
+      "M": {
+        "parents": [
+          "B",
+          "C"
+        ],
+        "treeGroup": 3
+      }
+    },
+    "marks": {},
+    "reachableCount": 4
+  },
+  "fast-forward": {
+    "refs": {
+      "refs/heads/fitur": "B",
+      "refs/heads/main": "B"
+    },
+    "head": "main",
+    "commits": {
+      "A": {
+        "parents": [],
+        "treeGroup": 0
+      },
+      "B": {
+        "parents": [
+          "A"
+        ],
+        "treeGroup": 1
+      }
+    },
+    "marks": {},
+    "reachableCount": 2
+  },
+  "accidental-hard-reset": {
+    "refs": {
+      "refs/heads/main": "A",
+      "refs/heads/penyelamat": "B"
+    },
+    "head": "main",
+    "commits": {
+      "A": {
+        "parents": [],
+        "treeGroup": 0
+      },
+      "B": {
+        "parents": [
+          "A"
+        ],
+        "treeGroup": 1
+      }
+    },
+    "marks": {
+      "yang-hilang": {
+        "present": true,
+        "reachable": true
+      }
+    },
+    "reachableCount": 2
+  },
+  "cherry-pick-one": {
+    "refs": {
+      "refs/heads/fitur": "P#0",
+      "refs/heads/main": "P#1"
+    },
+    "head": "main",
+    "commits": {
+      "A": {
+        "parents": [],
+        "treeGroup": 0
+      },
+      "B": {
+        "parents": [
+          "A"
+        ],
+        "treeGroup": 1
+      },
+      "P#0": {
+        "parents": [
+          "A"
+        ],
+        "treeGroup": 2
+      },
+      "P#1": {
+        "parents": [
+          "B"
+        ],
+        "treeGroup": 3
+      }
+    },
+    "marks": {
+      "asli": {
+        "present": true,
+        "reachable": true
+      }
+    },
+    "reachableCount": 4
+  },
+  "revert-a-commit": {
+    "refs": {
+      "refs/heads/main": "Revert \"B\""
+    },
+    "head": "main",
+    "commits": {
+      "A": {
+        "parents": [],
+        "treeGroup": 0
+      },
+      "B": {
+        "parents": [
+          "A"
+        ],
+        "treeGroup": 1
+      },
+      "Revert \"B\"": {
+        "parents": [
+          "B"
+        ],
+        "treeGroup": 0
+      }
+    },
+    "marks": {},
+    "reachableCount": 3
+  },
+  "messy-history": {
+    "refs": {
+      "refs/heads/fitur": "F3",
+      "refs/heads/main": "U"
+    },
+    "head": "fitur",
+    "commits": {
+      "A": {
+        "parents": [],
+        "treeGroup": 0
+      },
+      "F1": {
+        "parents": [
+          "U"
+        ],
+        "treeGroup": 1
+      },
+      "F2": {
+        "parents": [
+          "F1"
+        ],
+        "treeGroup": 2
+      },
+      "F3": {
+        "parents": [
+          "F2"
+        ],
+        "treeGroup": 3
+      },
+      "U": {
+        "parents": [
+          "A"
+        ],
+        "treeGroup": 4
+      }
+    },
+    "marks": {
+      "ujung-lama": {
+        "present": true,
+        "reachable": false
+      }
+    },
+    "reachableCount": 5
+  }
+}
