@@ -129,6 +129,10 @@ tests/
 - Git terms stay in English in code and UI; interface copy is Indonesian.
 - Scenario ids stable and readable: `feature-behind-main`, `messy-history`, `published-branch`, `accidental-hard-reset`. They appear in shared URLs.
 - Tailwind utilities inline; semantic tokens in `tailwind.config.ts` — `board`, `kraft`, `ink`, `catalogue`, `faded`, `stamp`. Never raw hex in components.
+- The PRD's six colours are joined by four working tokens, none of them a new colour: `paper` and `shelf` are surfaces on the board, `muted` is the text grey (`faded` fails contrast as text and means *unreachable object*, nothing else), and the `-deep` variants are for a token drawn on another token — `stamp-deep` on kraft, `catalogue-deep` on hover.
+- Repeated chrome is a class in `globals.css`, not a copied string: `.panel`/`.panel-head`/`.panel-body`, `.btn-*`, `.chip`, `.field`, `.tab`, `.label`. `.label` is for naming a region — never for prose.
+- **12px is the floor for anything a reader has to read.** A teaching tool that sets its explanations in 10px has lost the reader it was written for.
+- A *suggested* command is offered, never run. The starter chips, the command reference, and a scenario's `next` all put the line in the command bar and stop; the user presses enter. (The panel controls — push, fetch, run-todo, rescue — do run, and each shows the line it ran. The difference is that those are the panel's own gesture, not a hint about what to learn next: a scenario that presses its own button teaches the button.)
 
 ## Testing rules
 

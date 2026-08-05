@@ -9,7 +9,6 @@
 import type { Locale } from './locales'
 
 export interface UiCopy {
-  readonly tagline: string
   readonly enter: string
   readonly scenarios: string
   readonly compare: string
@@ -19,7 +18,6 @@ export interface UiCopy {
   readonly objects: string
   readonly orphans: string
   readonly detached: string
-  readonly clear: string
   readonly share: string
   readonly shared: string
 
@@ -142,8 +140,6 @@ export interface UiCopy {
 }
 
 const EN: UiCopy = {
-  tagline:
-    'Rebase does not move commits. It creates new ones — with new hashes — and leaves the originals on the shelf.',
   enter: 'Open the repository',
   scenarios: 'Scenarios',
   compare: 'Compare',
@@ -155,7 +151,6 @@ const EN: UiCopy = {
   objects: 'objects',
   orphans: 'orphaned',
   detached: 'HEAD detached',
-  clear: 'Clear',
   share: 'Share URL',
   shared: 'Copied',
 
@@ -293,8 +288,6 @@ const EN: UiCopy = {
 }
 
 const ID: UiCopy = {
-  tagline:
-    'Rebase tidak memindahkan commit. Ia membuat commit baru — dengan hash baru — dan meninggalkan yang asli di rak.',
   enter: 'Buka repositori',
   scenarios: 'Skenario',
   compare: 'Banding',
@@ -306,7 +299,6 @@ const ID: UiCopy = {
   objects: 'objek',
   orphans: 'yatim',
   detached: 'HEAD detached',
-  clear: 'Kosongkan',
   share: 'Bagikan URL',
   shared: 'Tersalin',
 
