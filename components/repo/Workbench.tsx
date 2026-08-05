@@ -20,6 +20,7 @@ import { count } from '@/lib/git/store'
 import { emptyRepository, type GitEvent, type Repository } from '@/lib/git/state'
 import { layoutGraph } from '@/lib/layout/lanes'
 import { decodeScript, encodeScript } from '@/lib/share/url'
+import { findScenario, type Scenario } from '@/data/scenarios'
 import type { Oid } from '@/lib/hash'
 
 const START = [
@@ -82,13 +83,18 @@ export function Workbench({ initialScript }: { initialScript?: readonly string[]
     [repo, say],
   )
 
-  // A shared link, or the starter history for a first visit.
+  // A scenario, a shared link, or the starter history for a first visit.
+  const [scenario, setScenario] = useState<Scenario | null>(null)
   const loaded = useRef(false)
   useEffect(() => {
     if (loaded.current) return
     loaded.current = true
+
+    const chosen = findScenario(new URLSearchParams(window.location.search).get('skenario') ?? '')
+    if (chosen) setScenario(chosen)
+
     const shared = decodeScript(window.location.hash)
-    setScript([...(initialScript ?? shared ?? START)])
+    setScript([...(initialScript ?? chosen?.script ?? shared ?? START)])
   }, [initialScript])
 
   const live = useMemo(() => reachable(repo), [repo])
@@ -150,6 +156,19 @@ export function Workbench({ initialScript }: { initialScript?: readonly string[]
           </button>
         </div>
       </header>
+
+      {scenario ? (
+        <aside className="border-l-2 border-catalogue bg-board px-4 py-3">
+          <p className="label">Skenario — {scenario.title}</p>
+          <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-ink/80">
+            {scenario.lesson}
+          </p>
+          <p className="mt-2 font-mono text-xs text-ink/70">
+            Lalu coba <span className="text-stamp">{scenario.next.command}</span> —{' '}
+            {scenario.next.why}
+          </p>
+        </aside>
+      ) : null}
 
       <div className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
         <div className="flex min-w-0 flex-col gap-4">

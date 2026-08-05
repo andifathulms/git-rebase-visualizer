@@ -11,6 +11,8 @@ const COPY = {
     tagline:
       'Rebase tidak memindahkan commit. Ia membuat commit baru — dengan hash baru — dan meninggalkan yang asli di rak.',
     enter: 'Buka repositori',
+    scenarios: 'Skenario',
+    compare: 'Banding',
     prior:
       'Learn Git Branching adalah tutorial yang lebih baik dan lebih lengkap. Ini bukan tutorial; ini sandbox.',
     honest:
@@ -20,6 +22,8 @@ const COPY = {
     tagline:
       'Rebase does not move commits. It creates new ones — with new hashes — and leaves the originals on the shelf.',
     enter: 'Open the repository',
+    scenarios: 'Scenarios',
+    compare: 'Compare',
     prior:
       'Learn Git Branching is the better and more complete tutorial. This is not a tutorial; it is a sandbox.',
     honest:
@@ -42,12 +46,26 @@ export default function Home({ params }: { params: { locale: string } }) {
 
       <p className="text-lg leading-relaxed">{t.tagline}</p>
 
-      <Link
-        href={`/${params.locale}/repo`}
-        className="w-fit border border-catalogue bg-catalogue px-5 py-2 font-display uppercase tracking-[0.18em] text-sm text-board"
-      >
-        {t.enter}
-      </Link>
+      <nav className="flex flex-wrap gap-3">
+        <Link
+          href={`/${params.locale}/repo`}
+          className="border border-catalogue bg-catalogue px-5 py-2 font-display uppercase tracking-[0.18em] text-sm text-board"
+        >
+          {t.enter}
+        </Link>
+        <Link
+          href={`/${params.locale}/skenario`}
+          className="border border-catalogue px-5 py-2 font-display uppercase tracking-[0.18em] text-sm text-catalogue"
+        >
+          {t.scenarios}
+        </Link>
+        <Link
+          href={`/${params.locale}/banding`}
+          className="border border-catalogue px-5 py-2 font-display uppercase tracking-[0.18em] text-sm text-catalogue"
+        >
+          {t.compare}
+        </Link>
+      </nav>
 
       <div className="space-y-3 border-t border-ink/20 pt-6 text-sm text-ink/75">
         <p>
