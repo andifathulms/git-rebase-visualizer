@@ -4,7 +4,11 @@
 
 > *cangkok* / *mencangkok* — teknik hortikultura mengakarkan cabang ke batang lain. Persis yang dilakukan rebase.
 
+**English is the default route** (`/en/`); Indonesian is at `/id/`. Interface copy is written Indonesian-first per PRD §9, and git's own vocabulary — *commit*, *rebase*, *HEAD*, *detached*, *reflog* — stays English in both, so it transfers to real git.
+
 Situs statis, tanpa backend. Baca [PRD.md](PRD.md) untuk cakupan dan [CLAUDE.md](CLAUDE.md) untuk cara bekerja di repo ini.
+
+**Live:** https://andifathulms.github.io/git-rebase-visualizer/
 
 ---
 
@@ -57,6 +61,8 @@ Artinya klaim utama proyek ini datang dari git, bukan dari penalaran Cangkok. Re
 ## Yang sengaja tidak ada
 
 Bukan klien git, tidak menyentuh filesystem, tidak ada jaringan. Submodule, worktree, bisect, notes, LFS, packfile, dan strategi merge selain three-way ada di luar cakupan (PRD §4). Perintah yang tidak didukung **gagal dengan menyebut namanya** — tidak pernah diam-diam tidak melakukan apa-apa, dan tidak pernah menghasilkan jawaban yang masuk akal tapi salah.
+
+`diff` membandingkan dua commit, atau sebuah commit dengan working tree — dan tidak membuat maupun memindahkan apa pun.
 
 `push` dan `fetch` bekerja terhadap satu peer simulasi bernama `origin` — namespace ref kedua di atas store yang sama, bukan jaringan (PRD §4). `pull` **sengaja tidak ada**: ia menyembunyikan separuh pekerjaannya, dan separuh itu yang mengubah riwayat Anda. Jalankan `fetch` lalu `merge origin/main` atau `rebase origin/main`.
 

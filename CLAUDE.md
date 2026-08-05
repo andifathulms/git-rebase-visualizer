@@ -156,7 +156,9 @@ Learn Git Branching is linked prominently as the better tutorial — accurate, g
 - Append-only store, content addressing, refs/HEAD/reflog, virtual clock, `gitrevisions` parser with its fixture table.
 - Commands: `add`, `commit`, `branch`, `checkout`/`switch`, `merge`, `rebase` (including `-i` via `--todo=`), `cherry-pick`, `reset`, `revert`, `tag`, `log`, `status`, `reflog`, `gc`.
 - Real conflicts with git's own markers, and `--continue`/`--abort`/`--skip`.
-- Graph, command bar, reflog register with orphan recovery, working-tree editor, scenario library, comparison mode, interactive rebase panel.
+- Graph, command bar, reflog register with orphan recovery, working-tree editor, scenario library, comparison mode, interactive rebase panel, remote panel.
+- `diff` between two commits, a commit and the working tree, or `--staged` against HEAD.
+- The graft animation from PRD §9 "Motion": each replayed commit is drawn travelling out from its original while the originals fade and the ref string runs out to the new chain.
 - Remotes: one simulated peer (`origin`) as a second ref namespace over the same store, with `push`, `push --force`, `fetch`, and the collaborator's-view panel.
 - Oracle fixtures recorded from real git across nine scenarios — two of them against a real bare repository, so `push` is checked against git's own fast-forward rule; determinism, layout snapshot, and scenario suites green.
 
@@ -169,4 +171,8 @@ Notes for whoever picks this up:
 - **The peer's refs are reachability roots.** Without that, pushing a branch and then resetting locally would report the pushed commits as orphans — the opposite of the truth.
 - Not implemented on purpose, and refused by name: `--rebase-merges`, criss-cross merge bases, dropping commits already upstream by patch-id, reverting a merge without `-m`, more than one remote.
 
-Ideas beyond the PRD, in rough order of value: the orchestrated rebase animation from PRD §9 ("Motion") is not built — the graph re-renders rather than showing each box being copied while the branch card's string swings across, and that animation is described as the thing people would screenshot. After that: `git diff` between two commits, and English translations for engine messages (chrome is bilingual; command output is Indonesian only).
+**Locales.** English is the default route; Indonesian is at `/id/`. Engine messages carry both languages at the site that raises them (`lib/i18n/localized.ts`) rather than behind a key registry — with exactly two locales, a key table only adds a way for the identifier and the text to drift apart, and these messages explain git semantics. `lib/git` never chooses between the two; the UI does. `GitError.message` is the English one so stack traces and test failures read directly.
+
+**The graft animation** is driven by the `commits-replaced` event, which rebase and cherry-pick emit with old→new oid pairs. Do not infer it from the graph shape: the engine knows what it copied, and the animation is only honest if it uses that.
+
+Ideas beyond the PRD, in rough order of value: a conflict resolution UI showing base/ours/theirs side by side rather than raw markers in the editor (PRD §6.6 describes the three-way view; today the working-tree panel shows git's markers instead); scenario deep-links that pre-run the interesting command; and a way to step backwards through the session, which the script-as-state model already makes possible.
