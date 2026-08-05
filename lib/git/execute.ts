@@ -11,7 +11,7 @@ import { history, status } from './query'
 import { entriesFor, HEAD_LOG } from './reflog'
 import { resolveHead, shortRef } from './refs'
 import { revParse } from './revparse'
-import type { CommandResult, Repository } from './state'
+import type { CommandResult, RebaseStep, Repository } from './state'
 import { add } from './commands/add'
 import { createBranch, deleteBranch, listBranches } from './commands/branch'
 import { checkout } from './commands/checkout'
@@ -42,6 +42,43 @@ const OUT_OF_SCOPE: Record<string, string> = {
 
 function text(result: string, tone: 'info' | 'warn' | 'destructive' = 'info'): CommandResult['events'] {
   return [{ type: 'message', tone, text: result }]
+}
+
+const TODO_ACTIONS: readonly RebaseStep['action'][] = [
+  'pick',
+  'reword',
+  'squash',
+  'fixup',
+  'drop',
+]
+
+/**
+ * `--todo=pick:<oid>,squash:<oid>,reword:<oid>:<message>` — the todo list as one
+ * replayable token. git-rebase(1) opens an editor for this; a command line has
+ * nowhere to open one, so the panel encodes its result here instead.
+ */
+function parseTodo(spec: string): RebaseStep[] {
+  return spec
+    .split(',')
+    .filter((item) => item !== '')
+    .map((item) => {
+      const [action, oid, ...rest] = item.split(':')
+      if (!TODO_ACTIONS.includes(action as RebaseStep['action'])) {
+        throw new GitError(
+          'bad-todo',
+          `\`${action}\` bukan aksi todo yang dikenal. Yang ada: ${TODO_ACTIONS.join(', ')}.`,
+        )
+      }
+      if (!/^[0-9a-f]{40}$/.test(oid ?? '')) {
+        throw new GitError('bad-todo', `todo butuh oid lengkap 40 karakter, dapat: ${oid}`)
+      }
+      const message = rest.join(':')
+      return {
+        action: action as RebaseStep['action'],
+        oid,
+        message: message === '' ? undefined : decodeURIComponent(message),
+      }
+    })
 }
 
 export function execute(repo: Repository, line: string): CommandResult {
@@ -104,14 +141,21 @@ export function execute(repo: Repository, line: string): CommandResult {
       if (flags.has('continue')) return rebaseContinue(repo)
       if (flags.has('abort')) return rebaseAbort(repo)
       if (flags.has('skip')) return rebaseSkip(repo)
-      if (flags.has('i') || flags.has('interactive')) {
+      if ((flags.has('i') || flags.has('interactive')) && options.todo === undefined) {
+        // An interactive rebase needs a todo list, and a command bar has no
+        // editor to open. The panel writes the list back as `--todo=…`, so the
+        // resulting line is still replayable and still shareable.
         throw new GitError(
           'interactive',
-          'rebase -i dijalankan lewat panel todo, bukan lewat command bar — buka panel “Rebase interaktif”.',
+          'rebase -i disusun di panel “Rebase interaktif”, yang menuliskan hasilnya kembali sebagai --todo=… supaya tetap bisa diputar ulang.',
         )
       }
       if (!args[0]) throw new GitError('bad-args', 'rebase butuh upstream')
-      return rebase(repo, { upstream: args[0], onto: options.onto })
+      return rebase(repo, {
+        upstream: args[0],
+        onto: options.onto,
+        todo: options.todo === undefined ? undefined : parseTodo(options.todo),
+      })
 
     case 'cherry-pick':
       if (flags.has('continue')) return cherryPickContinue(repo)
