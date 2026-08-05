@@ -22,7 +22,7 @@ const source = Source_Sans_3({
 })
 
 export const metadata: Metadata = {
-  title: 'Cangkok — a git history simulator',
+  title: 'Git Rebase Simulator — see what rebase actually does',
   description:
     'Rebase does not move commits; it creates new ones and leaves the originals on the shelf. See it for yourself, with real content-addressed hashes.',
 }

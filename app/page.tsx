@@ -10,7 +10,7 @@ export default function RootPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
       <a className="text-catalogue underline" href={target}>
-        Cangkok
+        Git Rebase Simulator
       </a>
       <script dangerouslySetInnerHTML={{ __html: `location.replace(${JSON.stringify(target)})` }} />
     </main>

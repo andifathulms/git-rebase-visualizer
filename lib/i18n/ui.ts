@@ -146,7 +146,7 @@ const EN: UiCopy = {
   prior:
     'Learn Git Branching is the better and more complete tutorial. This is not a tutorial; it is a sandbox.',
   honest:
-    'Hashes here are real in the sense of being content-derived and internally consistent — not identical to what git would produce on your machine, because git also folds in the committer time and the author identity. Cangkok uses a virtual clock so every session replays exactly.',
+    'Hashes here are real in the sense of being content-derived and internally consistent — not identical to what git would produce on your machine, because git also folds in the committer time and the author identity. This simulator uses a virtual clock so every session replays exactly.',
 
   objects: 'objects',
   orphans: 'orphaned',
@@ -204,7 +204,7 @@ const EN: UiCopy = {
   language: 'Language',
   skipToMain: 'Skip to content',
 
-  heroKicker: 'A git history simulator',
+  heroKicker: 'Real hashes · real orphans · real reflog',
   heroTitle: 'See what rebase actually does',
   heroLead:
     'Rebase does not move your commits. It writes new ones — with new hashes — and leaves the originals sitting on the shelf, unreferenced but not gone.',
@@ -294,7 +294,7 @@ const ID: UiCopy = {
   prior:
     'Learn Git Branching adalah tutorial yang lebih baik dan lebih lengkap. Ini bukan tutorial; ini sandbox.',
   honest:
-    'Hash di sini nyata dalam arti diturunkan dari isi objek dan konsisten secara internal — bukan identik dengan yang dihasilkan git di mesin Anda, karena git ikut memasukkan waktu committer dan identitas penulis. Cangkok memakai jam virtual supaya setiap sesi bisa diulang persis.',
+    'Hash di sini nyata dalam arti diturunkan dari isi objek dan konsisten secara internal — bukan identik dengan yang dihasilkan git di mesin Anda, karena git ikut memasukkan waktu committer dan identitas penulis. Simulator ini memakai jam virtual supaya setiap sesi bisa diulang persis.',
 
   objects: 'objek',
   orphans: 'yatim',
@@ -352,7 +352,7 @@ const ID: UiCopy = {
   language: 'Bahasa',
   skipToMain: 'Lewati ke konten',
 
-  heroKicker: 'Simulator sejarah git',
+  heroKicker: 'Hash nyata · commit yatim nyata · reflog nyata',
   heroTitle: 'Lihat apa yang sebenarnya dilakukan rebase',
   heroLead:
     'Rebase tidak memindahkan commit Anda. Ia menulis commit baru — dengan hash baru — dan meninggalkan yang asli di rak, tanpa ada yang menunjuknya, tapi belum hilang.',

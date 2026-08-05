@@ -39,9 +39,9 @@ export function SiteHeader({
       <div className="mx-auto flex max-w-[100rem] flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2.5 sm:px-6">
         <Link
           href={`/${locale}`}
-          className="font-display text-[15px] uppercase tracking-[0.22em] text-ink"
+          className="font-display text-[13px] uppercase leading-tight tracking-[0.1em] text-ink sm:text-[15px] sm:tracking-[0.14em]"
         >
-          Cangkok
+          Git Rebase Simulator
         </Link>
 
         <nav aria-label={t.navHome} className="flex items-center gap-1">

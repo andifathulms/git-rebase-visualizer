@@ -38,8 +38,8 @@ import { updateRef } from '../update-ref'
 function requireOrigin(repo: Repository, name: string | undefined): void {
   if (name !== undefined && name !== repo.remote.name) {
     throw new GitError('unknown-remote', {
-      en: `remote \`${name}\` does not exist. Cangkok simulates exactly one peer, named ${repo.remote.name}.`,
-      id: `remote \`${name}\` tidak ada. Cangkok hanya mensimulasikan satu peer, bernama ${repo.remote.name}.`,
+      en: `remote \`${name}\` does not exist. this simulator has exactly one peer, named ${repo.remote.name}.`,
+      id: `remote \`${name}\` tidak ada. simulator ini hanya mensimulasikan satu peer, bernama ${repo.remote.name}.`,
     })
   }
 }

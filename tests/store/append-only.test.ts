@@ -5,8 +5,8 @@ import { GitError } from '@/lib/git/errors'
 import { expectAppendOnly, snapshotStore } from '../helpers/store-invariants'
 
 const sig: Signature = {
-  name: 'Cangkok',
-  email: 'cangkok@example.test',
+  name: 'Simulator',
+  email: 'sim@example.test',
   timestamp: 1_700_000_000,
   timezone: '+0700',
 }

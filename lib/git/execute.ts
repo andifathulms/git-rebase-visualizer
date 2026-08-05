@@ -28,11 +28,11 @@ import { diff } from './commands/diff'
 import { createTag, deleteTag } from './commands/tag'
 import type { ResetMode } from './commands/types'
 
-/** Commands git has that Cangkok deliberately does not — refused by name. */
+/** Commands git has that this simulator deliberately does not — refused by name. */
 const OUT_OF_SCOPE: Record<string, Localized> = {
   clone: {
-    en: 'Cangkok has no network and no filesystem (PRD §4)',
-    id: 'tidak ada jaringan dan tidak ada filesystem di Cangkok (PRD §4)',
+    en: 'this simulator has no network and no filesystem (PRD §4)',
+    id: 'tidak ada jaringan dan tidak ada filesystem di simulator ini (PRD §4)',
   },
   // PRD §6.7 asks for explicit push and fetch. `pull` hides the second half of
   // what it does, and the second half is the part that rewrites your history.
@@ -84,7 +84,7 @@ function parseTodo(spec: string): RebaseStep[] {
       const [action, oid, ...rest] = item.split(':')
       if (!TODO_ACTIONS.includes(action as RebaseStep['action'])) {
         throw new GitError('bad-todo', {
-          en: `\`${action}\` is not a todo action Cangkok knows. The list is: ${TODO_ACTIONS.join(', ')}.`,
+          en: `\`${action}\` is not a todo action this simulator knows. The list is: ${TODO_ACTIONS.join(', ')}.`,
           id: `\`${action}\` bukan aksi todo yang dikenal. Yang ada: ${TODO_ACTIONS.join(', ')}.`,
         })
       }
@@ -355,8 +355,8 @@ export function execute(repo: Repository, line: string): CommandResult {
 
     default:
       throw new GitError('unknown-command', {
-        en: `\`${command}\` is not a command Cangkok knows. The supported list is: ${SUPPORTED_COMMANDS.join(', ')}.`,
-        id: `\`${command}\` bukan perintah yang dikenal Cangkok. Yang didukung: ${SUPPORTED_COMMANDS.join(', ')}.`,
+        en: `\`${command}\` is not a command this simulator knows. The supported list is: ${SUPPORTED_COMMANDS.join(', ')}.`,
+        id: `\`${command}\` bukan perintah yang dikenal simulator ini. Yang didukung: ${SUPPORTED_COMMANDS.join(', ')}.`,
       })
   }
 }

@@ -27,8 +27,8 @@ export class GitError extends Error {
 
 export function unsupported(what: { en: string; id: string }): never {
   throw new GitError('unsupported', {
-    en: `${what.en} is not supported in Cangkok. PRD §4 lists what is deliberately out of scope.`,
-    id: `${what.id} tidak didukung di Cangkok. Lihat PRD §4 untuk apa yang sengaja di luar cakupan.`,
+    en: `${what.en} is not supported by this simulator. PRD §4 lists what is deliberately out of scope.`,
+    id: `${what.id} tidak didukung di simulator ini. Lihat PRD §4 untuk apa yang sengaja di luar cakupan.`,
   })
 }
 

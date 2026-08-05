@@ -12,7 +12,7 @@
  *   remote-init                  give the repository a peer named origin
  *
  * The recorder makes `remote-init` a real bare repository plus `git remote add`;
- * Cangkok always has exactly one simulated peer, so for it the line is a no-op.
+ * The simulator always has exactly one peer, so for it the line is a no-op.
  *
  * Commit messages are unique within each scenario's reachable history, which is
  * what lets the fixture describe structure by message instead of by hash.

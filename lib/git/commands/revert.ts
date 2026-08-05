@@ -42,8 +42,8 @@ export function revert(repo: Repository, revision: string): CommandResult {
 
   if (commit.parents.length > 1) {
     throw new GitError('unsupported', {
-      en: `${target.slice(0, 7)} is a merge commit — reverting one needs -m to pick a mainline, which is out of scope for Cangkok (PRD §4).`,
-      id: `${target.slice(0, 7)} adalah merge commit — revert merge butuh -m untuk memilih mainline, dan itu di luar cakupan Cangkok (PRD §4).`,
+      en: `${target.slice(0, 7)} is a merge commit — reverting one needs -m to pick a mainline, which is out of scope for this simulator (PRD §4).`,
+      id: `${target.slice(0, 7)} adalah merge commit — revert merge butuh -m untuk memilih mainline, dan itu di luar cakupan simulator ini (PRD §4).`,
     })
   }
 

@@ -1,5 +1,5 @@
 {
-  "name": "cangkok",
+  "name": "git-rebase-simulator",
   "version": "0.1.0",
   "private": true,
   "description": "Simulator sejarah git dengan hash content-addressed sungguhan.",

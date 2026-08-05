@@ -1,4 +1,4 @@
-# CLAUDE.md — Cangkok
+# CLAUDE.md — Git Rebase Simulator
 
 Git history simulator with real content-addressed hashes, an honest append-only object store, orphan and reflog views, and a real command bar. Static site, GitHub Pages, no backend.
 

@@ -59,6 +59,12 @@ export interface Identity {
   readonly timezone: string
 }
 
+/**
+ * The committer identity is folded into every commit hash, so this domain is
+ * deliberately left at the project's old name: changing it would silently
+ * change every oid the app has ever shown, and every hash in a screenshot or a
+ * shared link's replay. It is never displayed. Do not "tidy" it.
+ */
 export const DEFAULT_IDENTITY: Identity = {
   name: 'Anda',
   email: 'anda@cangkok.local',

@@ -9,8 +9,8 @@ import {
 } from '@/lib/git/objects'
 
 const sig: Signature = {
-  name: 'Cangkok',
-  email: 'cangkok@example.test',
+  name: 'Simulator',
+  email: 'sim@example.test',
   timestamp: 1_700_000_000,
   timezone: '+0700',
 }

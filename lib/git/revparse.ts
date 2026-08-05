@@ -156,8 +156,8 @@ function parseReflogSuffix(repo: Repository, base: string, inside: string): Oid 
     return resolveReflog(repo.reflog, ref, Number(inside))
   }
   throw new GitError('unsupported', {
-    en: `@{${inside}} is not supported — Cangkok only understands @{n} (a reflog position), not dates or upstream`,
-    id: `@{${inside}} tidak didukung — Cangkok hanya mengenal @{n} (posisi reflog), bukan tanggal atau upstream`,
+    en: `@{${inside}} is not supported — this simulator only understands @{n} (a reflog position), not dates or upstream`,
+    id: `@{${inside}} tidak didukung — simulator ini hanya mengenal @{n} (posisi reflog), bukan tanggal atau upstream`,
   })
 }
 

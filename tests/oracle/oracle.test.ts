@@ -3,7 +3,7 @@
  *
  * The fixtures in `fixtures.json` were produced by `pnpm fixtures:record`,
  * which runs the scenarios in `scenarios.mjs` through the actual git binary.
- * This test runs the identical scripts through Cangkok and asserts the two
+ * This test runs the identical scripts through the simulator and asserts the two
  * descriptions match.
  *
  * PRD §8 and CLAUDE.md invariant 11: never assert literal hash equality against
@@ -65,7 +65,7 @@ function runScenario(scenario: Scenario): { repo: Repository; marks: Record<stri
     }
 
     if (tokens[0] === 'remote-init') {
-      // Cangkok always has exactly one simulated peer, so there is nothing to
+      // The simulator always has exactly one peer, so there is nothing to
       // create; the recorder makes a real bare repository for the same line.
       continue
     }
@@ -186,7 +186,7 @@ describe('oracle — structural agreement with real git', () => {
 
 describe('oracle — the claims the fixtures encode', () => {
   it('confirms with real git that rebase leaves the original behind', () => {
-    // Not Cangkok's opinion: this is what the recorded git run reported.
+    // Not the simulator's opinion: this is what the recorded git run reported.
     expect(recorded['feature-behind-main'].marks['sebelum-rebase']).toEqual({
       present: true,
       reachable: false,

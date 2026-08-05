@@ -1,8 +1,8 @@
-# Cangkok
+# Git Rebase Simulator
 
 **Simulator sejarah git dengan hash content-addressed sungguhan — supaya terlihat bahwa rebase tidak memindahkan commit, tapi membuat commit baru dan meninggalkan yang asli di rak.**
 
-> *cangkok* / *mencangkok* — teknik hortikultura mengakarkan cabang ke batang lain. Persis yang dilakukan rebase.
+> Sebelumnya bernama *Cangkok* — teknik hortikultura mengakarkan cabang ke batang lain, persis yang dilakukan rebase. Namanya diganti supaya orang yang belum kenal proyek ini langsung tahu isinya.
 
 **English is the default route** (`/en/`); Indonesian is at `/id/`. Interface copy is written Indonesian-first per PRD §9, and git's own vocabulary — *commit*, *rebase*, *HEAD*, *detached*, *reflog* — stays English in both, so it transfers to real git.
 
@@ -14,7 +14,7 @@ Situs statis, tanpa backend. Baca [PRD.md](PRD.md) untuk cakupan dan [CLAUDE.md]
 
 ## Kenapa ada
 
-[Learn Git Branching](https://learngitbranching.js.org) adalah tutorial yang lebih baik dan lebih lengkap, dan sebaiknya Anda pakai itu dulu. Cangkok bukan tutorial; ini sandbox, dan ia menunjukkan tiga hal yang tidak ditunjukkan visualiser lain:
+[Learn Git Branching](https://learngitbranching.js.org) adalah tutorial yang lebih baik dan lebih lengkap, dan sebaiknya Anda pakai itu dulu. Ini bukan tutorial; ini sandbox, dan ia menunjukkan tiga hal yang tidak ditunjukkan visualiser lain:
 
 - **Hash sungguhan, bukan `C1` `C2` `C3`.** Fakta terpenting tentang rebase adalah hasilnya objek yang berbeda dengan id yang berbeda. Dengan label berurutan, pelajarannya terhapus oleh notasinya.
 - **Apa yang ditinggalkan.** Setelah rebase atau `reset --hard`, commit lama masih ada — hanya tidak ditunjuk siapa-siapa. Itu sumber hampir semua kepanikan git, dan obatnya.
@@ -22,7 +22,7 @@ Situs statis, tanpa backend. Baca [PRD.md](PRD.md) untuk cakupan dan [CLAUDE.md]
 
 ## Sejujurnya soal hash
 
-Hash di sini nyata dalam arti **diturunkan dari isi objek dan konsisten secara internal** — bukan identik dengan yang dihasilkan `git` di mesin Anda. Git ikut memasukkan waktu committer dan identitas penulis; Cangkok memakai jam virtual supaya setiap sesi bisa diulang persis.
+Hash di sini nyata dalam arti **diturunkan dari isi objek dan konsisten secara internal** — bukan identik dengan yang dihasilkan `git` di mesin Anda. Git ikut memasukkan waktu committer dan identitas penulis; Simulator ini memakai jam virtual supaya setiap sesi bisa diulang persis.
 
 Yang **memang identik** dengan git: id blob dan tree, karena serialisasinya sama persis dan keduanya tidak memuat waktu. Itu diuji terhadap oid yang direkam dari `git ls-tree`.
 
@@ -50,7 +50,7 @@ pnpm dev
 
 Fixture-nya tidak memuat satu hash pun: id commit memang berbeda karena git memasukkan waktu dan identitas, jadi menyamakannya justru salah.
 
-Artinya klaim utama proyek ini datang dari git, bukan dari penalaran Cangkok. Rekaman gitnya sendiri yang melaporkan ujung branch sebelum rebase sebagai *ada tapi tak terjangkau* — begitu juga commit yang ditinggalkan `push --force` di sisi peer.
+Artinya klaim utama proyek ini datang dari git, bukan dari penalaran simulator ini. Rekaman gitnya sendiri yang melaporkan ujung branch sebelum rebase sebagai *ada tapi tak terjangkau* — begitu juga commit yang ditinggalkan `push --force` di sisi peer.
 
 **Append-only, setiap kali.** Setiap perintah di setiap tes memeriksa bahwa semua objek yang ada sebelumnya masih ada dan byte-identik sesudahnya. Ini bukan suite terpisah, melainkan asersi setelah setiap perintah.
 

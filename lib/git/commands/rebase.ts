@@ -14,7 +14,7 @@
  *
  * Not implemented, and refused by name rather than approximated:
  *   - rebasing merge commits (`--rebase-merges`)
- *   - dropping commits already upstream by patch-id equivalence; Cangkok
+ *   - dropping commits already upstream by patch-id equivalence; this simulator
  *     selects `upstream..HEAD` by reachability only.
  */
 import type { Oid } from '@/lib/hash'

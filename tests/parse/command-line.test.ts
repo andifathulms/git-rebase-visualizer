@@ -54,7 +54,7 @@ describe('execute — failing loudly', () => {
   const repo = emptyRepository()
 
   it('names an unknown command', () => {
-    expect(() => execute(repo, 'rebasetime')).toThrow(/is not a command Cangkok knows/)
+    expect(() => execute(repo, 'rebasetime')).toThrow(/is not a command this simulator knows/)
   })
 
   it('names a deliberately out-of-scope command instead of no-opping', () => {

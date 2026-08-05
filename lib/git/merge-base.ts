@@ -29,7 +29,7 @@ export function isAncestor(store: ObjectStore, maybeAncestor: Oid, of: Oid): boo
 
 /**
  * The best common ancestors. More than one means a criss-cross merge, which
- * real git resolves by recursively merging the candidates; Cangkok refuses
+ * real git resolves by recursively merging the candidates; this simulator refuses
  * loudly instead of picking one and producing a plausible wrong result.
  * PRD §4 keeps merge strategies to plain three-way.
  */
@@ -49,8 +49,8 @@ export function mergeBase(store: ObjectStore, a: Oid, b: Oid): Oid | undefined {
   const bases = mergeBases(store, a, b)
   if (bases.length > 1) {
     throw new GitError('criss-cross', {
-      en: `there are ${bases.length} merge bases between ${a.slice(0, 7)} and ${b.slice(0, 7)} (a criss-cross history). Cangkok only does a plain three-way merge and will not guess which one to use — see PRD §4.`,
-      id: `ada ${bases.length} merge base antara ${a.slice(0, 7)} dan ${b.slice(0, 7)} (riwayat criss-cross). Cangkok hanya melakukan three-way merge biasa dan tidak menebak yang mana — lihat PRD §4.`,
+      en: `there are ${bases.length} merge bases between ${a.slice(0, 7)} and ${b.slice(0, 7)} (a criss-cross history). this simulator only does a plain three-way merge and will not guess which one to use — see PRD §4.`,
+      id: `ada ${bases.length} merge base antara ${a.slice(0, 7)} dan ${b.slice(0, 7)} (riwayat criss-cross). simulator ini hanya melakukan three-way merge biasa dan tidak menebak yang mana — lihat PRD §4.`,
     })
   }
   return bases[0]

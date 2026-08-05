@@ -1,9 +1,9 @@
-# PRD — Cangkok
+# PRD — Git Rebase Simulator
 
 **A git history simulator with real content-addressed hashes, so you can see that rebase does not move commits — it creates new ones, and leaves the originals on the shelf.**
 
-> *cangkok* / *mencangkok* (Indonesian) — to graft; the horticultural technique of rooting a branch onto a different base.
-> Literally what rebase does: detach a branch, root it somewhere else. Slug used throughout as `cangkok`.
+> Formerly *Cangkok* — Indonesian for *to graft*, the horticultural technique of rooting a branch onto a different base, which is literally what rebase does. Renamed so that a reader who has never met the project knows what it is from the name alone; the graft metaphor still drives the design (PRD §9) and the rebase animation.
+> The repository slug stays `git-rebase-visualizer` and the committer domain stays `cangkok.local`, because that domain is folded into every commit hash.
 
 | | |
 |---|---|

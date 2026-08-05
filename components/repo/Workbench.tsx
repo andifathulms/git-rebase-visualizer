@@ -40,7 +40,7 @@ import type { Oid } from '@/lib/hash'
 const START = ['write notes.txt "first line"', 'add notes.txt', 'commit -m "first"']
 
 /** Remembers only that the orientation note was read. No session state. */
-const ORIENTED_KEY = 'cangkok:oriented'
+const ORIENTED_KEY = 'grs:oriented'
 
 type Rail = 'files' | 'remote' | 'rebase' | 'register'
 
