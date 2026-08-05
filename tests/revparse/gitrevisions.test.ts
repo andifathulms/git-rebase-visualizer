@@ -127,35 +127,35 @@ describe('gitrevisions — reflog positions', () => {
   })
 
   it('rejects a position beyond the end of the log, naming the length', () => {
-    expect(() => revParse(repo, 'main@{99}')).toThrow(/hanya punya/)
+    expect(() => revParse(repo, 'main@{99}')).toThrow(/has only \d+ entries/)
   })
 
   it('rejects date and upstream forms loudly rather than guessing', () => {
-    expect(() => revParse(repo, 'HEAD@{yesterday}')).toThrow(/tidak didukung/)
-    expect(() => revParse(repo, 'main@{upstream}')).toThrow(/tidak didukung/)
+    expect(() => revParse(repo, 'HEAD@{yesterday}')).toThrow(/is not supported/)
+    expect(() => revParse(repo, 'main@{upstream}')).toThrow(/is not supported/)
   })
 })
 
 describe('gitrevisions — failures name what went wrong', () => {
   it('rejects an unknown name', () => {
-    expect(() => revParse(repo, 'tidakada')).toThrow(/revisi tidak dikenal/)
+    expect(() => revParse(repo, 'tidakada')).toThrow(/unknown revision/)
   })
 
   it('rejects a parent index the commit does not have', () => {
-    expect(() => revParse(repo, 'HEAD^3')).toThrow(/parent ke-3/)
+    expect(() => revParse(repo, 'HEAD^3')).toThrow(/no parent number 3/)
     expect(() => revParse(repo, 'fitur^2')).toThrow(GitError)
   })
 
   it('rejects walking past the root commit', () => {
-    expect(() => revParse(repo, 'HEAD~9')).toThrow(/commit akar/)
+    expect(() => revParse(repo, 'HEAD~9')).toThrow(/past the root commit/)
   })
 
   it('rejects an oid prefix shorter than git would accept', () => {
-    expect(() => revParse(repo, oid.B.slice(0, 3))).toThrow(/revisi tidak dikenal/)
+    expect(() => revParse(repo, oid.B.slice(0, 3))).toThrow(/unknown revision/)
   })
 
   it('revParseCommit refuses something that is not a commit', () => {
     const tree = requireCommit(repo.store, oid.M).tree
-    expect(() => revParseCommit(repo, tree)).toThrow(/tidak menunjuk ke sebuah commit/)
+    expect(() => revParseCommit(repo, tree)).toThrow(/does not point at a commit/)
   })
 })

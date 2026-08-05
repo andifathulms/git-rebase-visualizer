@@ -87,7 +87,10 @@ function formatSignature(signature: Signature): string {
 
 function oidToBytes(oid: Oid): Uint8Array {
   if (!/^[0-9a-f]{40}$/.test(oid)) {
-    throw new GitError('invariant', `bukan oid yang sah: ${oid}`)
+    throw new GitError('invariant', {
+      en: `not a valid oid: ${oid}`,
+      id: `bukan oid yang sah: ${oid}`,
+    })
   }
   const bytes = new Uint8Array(20)
   for (let i = 0; i < 20; i++) bytes[i] = parseInt(oid.slice(i * 2, i * 2 + 2), 16)
@@ -175,10 +178,10 @@ function computeOid(object: GitObject): Oid {
 export function verifyOid(object: GitObject): void {
   const actual = computeOid(object)
   if (actual !== object.oid) {
-    throw new GitError(
-      'invariant',
-      `oid tidak cocok dengan isi objek: tertulis ${object.oid}, seharusnya ${actual}`,
-    )
+    throw new GitError('invariant', {
+      en: `oid does not match the object's content: recorded ${object.oid}, computed ${actual}`,
+      id: `oid tidak cocok dengan isi objek: tertulis ${object.oid}, seharusnya ${actual}`,
+    })
   }
 }
 
@@ -193,7 +196,10 @@ export function makeTree(entries: readonly TreeEntry[]): Tree {
   const sorted = sortTreeEntries(entries)
   for (let i = 1; i < sorted.length; i++) {
     if (sorted[i].name === sorted[i - 1].name) {
-      throw new GitError('invariant', `entri tree ganda: ${sorted[i].name}`)
+      throw new GitError('invariant', {
+        en: `duplicate tree entry: ${sorted[i].name}`,
+        id: `entri tree ganda: ${sorted[i].name}`,
+      })
     }
   }
   const draft: Tree = { type: 'tree', oid: PLACEHOLDER_OID, entries: sorted }

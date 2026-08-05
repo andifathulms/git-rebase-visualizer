@@ -37,10 +37,10 @@ import { updateRef } from '../update-ref'
 
 function requireOrigin(repo: Repository, name: string | undefined): void {
   if (name !== undefined && name !== repo.remote.name) {
-    throw new GitError(
-      'unknown-remote',
-      `remote \`${name}\` tidak ada. Cangkok hanya mensimulasikan satu peer, bernama ${repo.remote.name}.`,
-    )
+    throw new GitError('unknown-remote', {
+      en: `remote \`${name}\` does not exist. Cangkok simulates exactly one peer, named ${repo.remote.name}.`,
+      id: `remote \`${name}\` tidak ada. Cangkok hanya mensimulasikan satu peer, bernama ${repo.remote.name}.`,
+    })
   }
 }
 
@@ -49,10 +49,10 @@ function branchToPush(repo: Repository, given: string | undefined): RefName {
   if (given) return branchRef(given)
   const current = headBranch(repo.head)
   if (!current) {
-    throw new GitError(
-      'detached',
-      'HEAD sedang detached — sebutkan branch yang mau di-push, karena tidak ada kartu yang mengikuti Anda.',
-    )
+    throw new GitError('detached', {
+      en: 'HEAD is detached — name the branch you want to push, because no card is following you.',
+      id: 'HEAD sedang detached — sebutkan branch yang mau di-push, karena tidak ada kartu yang mengikuti Anda.',
+    })
   }
   return current
 }
@@ -65,14 +65,28 @@ export function push(
 
   const ref = branchToPush(repo, options.branch)
   const local = readRef(repo.refs, ref)
-  if (local === undefined) throw new GitError('unknown-ref', `branch ${shortRef(ref)} tidak ada`)
+  if (local === undefined) {
+    throw new GitError('unknown-ref', {
+      en: `branch ${shortRef(ref)} does not exist`,
+      id: `branch ${shortRef(ref)} tidak ada`,
+    })
+  }
 
   const upstream = readRef(repo.remote.refs, ref)
 
   if (upstream === local) {
     return {
       repo,
-      events: [{ type: 'message', tone: 'info', text: 'Sudah mutakhir — tidak ada yang di-push.' }],
+      events: [
+        {
+          type: 'message',
+          tone: 'info',
+          text: {
+            en: 'Already up to date — nothing to push.',
+            id: 'Sudah mutakhir — tidak ada yang di-push.',
+          },
+        },
+      ],
     }
   }
 
@@ -82,14 +96,17 @@ export function push(
     // git-push(1) rejects this precisely so the next paragraph cannot happen by
     // accident. Naming what would be lost is the whole value of refusing.
     const wouldDrop = commitsOnlyOnRemote(repo, ref, upstream, local)
-    throw new GitError(
-      'non-fast-forward',
-      `push ditolak: ${shortRef(ref)} di ${repo.remote.name} bukan leluhur dari milik Anda — riwayatnya sudah berbeda. ` +
-        `Memaksa akan membuat ${wouldDrop.length} commit di sisi remote tidak lagi ditunjuk apa pun (${wouldDrop
-          .map((oid) => oid.slice(0, 7))
-          .join(', ')}). ` +
+    const names = wouldDrop.map((oid) => oid.slice(0, 7)).join(', ')
+    throw new GitError('non-fast-forward', {
+      en:
+        `push rejected: ${shortRef(ref)} on ${repo.remote.name} is not an ancestor of yours — the histories have diverged. ` +
+        `Forcing it would leave ${wouldDrop.length} commit(s) on the remote side named by nothing (${names}). ` +
+        `Pick them up with \`fetch\` then \`merge\`, or — if you really mean it — \`push --force\`.`,
+      id:
+        `push ditolak: ${shortRef(ref)} di ${repo.remote.name} bukan leluhur dari milik Anda — riwayatnya sudah berbeda. ` +
+        `Memaksa akan membuat ${wouldDrop.length} commit di sisi remote tidak lagi ditunjuk apa pun (${names}). ` +
         `Ambil dulu dengan \`fetch\` lalu \`merge\`, atau — kalau Anda memang yakin — \`push --force\`.`,
-    )
+    })
   }
 
   const dropped = fastForward ? [] : commitsOnlyOnRemote(repo, ref, upstream, local)
@@ -116,17 +133,27 @@ export function push(
     events.push({
       type: 'message',
       tone: 'destructive',
-      text:
-        `Force-push. ${dropped.length} commit yang tadinya ada di ${repo.remote.name}/${shortRef(ref)} ` +
-        `sekarang tidak ditunjuk ref mana pun di sana: ${dropped.map((oid) => oid.slice(0, 7)).join(', ')}. ` +
-        `Rekan yang sudah terlanjur fetch masih punya commit itu dan akan melihat riwayatnya berbeda dari Anda; ` +
-        `yang clone baru tidak akan pernah melihatnya.`,
+      text: {
+        en:
+          `Force-push. ${dropped.length} commit(s) that used to be on ${repo.remote.name}/${shortRef(ref)} ` +
+          `are now named by no ref there: ${dropped.map((oid) => oid.slice(0, 7)).join(', ')}. ` +
+          `A colleague who already fetched still has them and will see a history that differs from yours; ` +
+          `anyone cloning today will never see them at all.`,
+        id:
+          `Force-push. ${dropped.length} commit yang tadinya ada di ${repo.remote.name}/${shortRef(ref)} ` +
+          `sekarang tidak ditunjuk ref mana pun di sana: ${dropped.map((oid) => oid.slice(0, 7)).join(', ')}. ` +
+          `Rekan yang sudah terlanjur fetch masih punya commit itu dan akan melihat riwayatnya berbeda dari Anda; ` +
+          `yang clone baru tidak akan pernah melihatnya.`,
+      },
     })
   } else {
     events.push({
       type: 'message',
       tone: 'info',
-      text: `${shortRef(ref)} dikirim ke ${repo.remote.name}. Fast-forward — tidak ada yang hilang di sisi sana.`,
+      text: {
+        en: `${shortRef(ref)} sent to ${repo.remote.name}. Fast-forward — nothing was lost on that side.`,
+        id: `${shortRef(ref)} dikirim ke ${repo.remote.name}. Fast-forward — tidak ada yang hilang di sisi sana.`,
+      },
     })
   }
 
@@ -190,8 +217,14 @@ export function fetch(repo: Repository, options: { remote?: string } = {}): Comm
     tone: 'info',
     text:
       moved === 0
-        ? `Tidak ada yang baru di ${repo.remote.name}.`
-        : `${moved} remote-tracking ref diperbarui. Fetch hanya memindahkan kartu ${repo.remote.name}/… — branch lokal Anda tidak disentuh. Gabungkan sendiri dengan \`merge ${repo.remote.name}/main\` atau \`rebase ${repo.remote.name}/main\`.`,
+        ? {
+            en: `Nothing new on ${repo.remote.name}.`,
+            id: `Tidak ada yang baru di ${repo.remote.name}.`,
+          }
+        : {
+            en: `${moved} remote-tracking ref(s) updated. Fetch only moves the ${repo.remote.name}/… cards — your local branches are untouched. Integrate them yourself with \`merge ${repo.remote.name}/main\` or \`rebase ${repo.remote.name}/main\`.`,
+            id: `${moved} remote-tracking ref diperbarui. Fetch hanya memindahkan kartu ${repo.remote.name}/… — branch lokal Anda tidak disentuh. Gabungkan sendiri dengan \`merge ${repo.remote.name}/main\` atau \`rebase ${repo.remote.name}/main\`.`,
+          },
   })
 
   return { repo: working, events }

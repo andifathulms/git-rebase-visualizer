@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Archivo, Azeret_Mono, Source_Sans_3 } from 'next/font/google'
+import { DEFAULT_LOCALE } from '@/lib/i18n/locales'
 import './globals.css'
 
 const azeret = Azeret_Mono({
@@ -21,14 +22,14 @@ const source = Source_Sans_3({
 })
 
 export const metadata: Metadata = {
-  title: 'Cangkok — simulator sejarah git',
+  title: 'Cangkok — a git history simulator',
   description:
-    'Rebase tidak memindahkan commit; ia membuat commit baru dan meninggalkan yang asli di rak. Lihat sendiri, dengan hash content-addressed sungguhan.',
+    'Rebase does not move commits; it creates new ones and leaves the originals on the shelf. See it for yourself, with real content-addressed hashes.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${azeret.variable} ${archivo.variable} ${source.variable}`}>
+    <html lang={DEFAULT_LOCALE} className={`${azeret.variable} ${archivo.variable} ${source.variable}`}>
       <body>{children}</body>
     </html>
   )

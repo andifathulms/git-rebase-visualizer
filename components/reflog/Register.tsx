@@ -11,29 +11,33 @@
 import { shortOid } from '@/lib/hash'
 import type { ReflogEntry } from '@/lib/git/reflog'
 import { shortRef } from '@/lib/git/refs'
+import type { Locale } from '@/lib/i18n/locales'
+import { UI } from '@/lib/i18n/ui'
 
 export function Register({
   entries,
   orphans,
   onRecover,
+  locale,
 }: {
   entries: readonly ReflogEntry[]
   orphans: readonly string[]
   onRecover: (oid: string) => void
+  locale: Locale
 }) {
+  const t = UI[locale]
   return (
     <section className="flex min-h-0 flex-col border border-ink/20">
       <header className="border-b border-ink/20 px-3 py-2">
-        <span className="label">Reflog — register</span>
+        <span className="label">{t.register}</span>
       </header>
 
       {orphans.length > 0 ? (
         <div className="border-b border-ink/20 bg-board px-3 py-2">
-          <p className="label mb-1">Kotak tanpa kartu ({orphans.length})</p>
-          <p className="mb-2 text-[11px] leading-relaxed text-ink/70">
-            Masih di rak, tidak ditunjuk ref mana pun. Belum hilang — <code>gc</code> yang
-            menyapunya, dan hanya setelah reflog dibuang.
+          <p className="label mb-1">
+            {t.boxesWithoutCards} ({orphans.length})
           </p>
+          <p className="mb-2 text-[11px] leading-relaxed text-ink/70">{t.orphanHelp}</p>
           <ul className="space-y-1">
             {orphans.map((oid) => (
               <li key={oid} className="flex items-center justify-between gap-2">
@@ -43,7 +47,7 @@ export function Register({
                   onClick={() => onRecover(oid)}
                   className="border border-catalogue px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.14em] text-catalogue hover:bg-catalogue hover:text-board"
                 >
-                  Selamatkan
+                  {t.recover}
                 </button>
               </li>
             ))}
@@ -53,7 +57,7 @@ export function Register({
 
       <ol className="min-h-0 flex-1 overflow-y-auto divide-y divide-ink/10">
         {entries.length === 0 ? (
-          <li className="px-3 py-2 font-mono text-xs text-faded">(belum ada pergerakan ref)</li>
+          <li className="px-3 py-2 font-mono text-xs text-faded">{t.noMovements}</li>
         ) : (
           entries.map((entry, index) => (
             <li key={`${entry.ref}-${index}-${entry.timestamp}`} className="px-3 py-2">
@@ -70,7 +74,7 @@ export function Register({
               </p>
               {entry.before && entry.before !== entry.after ? (
                 <p className="mt-0.5 font-mono text-[10px] text-faded">
-                  dari {shortOid(entry.before)}
+                  {locale === 'en' ? 'from' : 'dari'} {shortOid(entry.before)}
                 </p>
               ) : null}
             </li>

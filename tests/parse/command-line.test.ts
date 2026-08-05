@@ -22,7 +22,7 @@ describe('tokenize', () => {
   })
 
   it('rejects an unclosed quote', () => {
-    expect(() => tokenize('commit -m "belum ditutup')).toThrow(/tidak ditutup/)
+    expect(() => tokenize('commit -m "belum ditutup')).toThrow(/unclosed quote/)
   })
 })
 
@@ -54,20 +54,20 @@ describe('execute — failing loudly', () => {
   const repo = emptyRepository()
 
   it('names an unknown command', () => {
-    expect(() => execute(repo, 'rebasetime')).toThrow(/bukan perintah yang dikenal/)
+    expect(() => execute(repo, 'rebasetime')).toThrow(/is not a command Cangkok knows/)
   })
 
   it('names a deliberately out-of-scope command instead of no-opping', () => {
-    expect(() => execute(repo, 'clone https://example.test/x')).toThrow(/tidak didukung/)
-    expect(() => execute(repo, 'stash')).toThrow(/tidak didukung/)
-    expect(() => execute(repo, 'bisect start')).toThrow(/tidak didukung/)
+    expect(() => execute(repo, 'clone https://example.test/x')).toThrow(/is not supported/)
+    expect(() => execute(repo, 'stash')).toThrow(/is not supported/)
+    expect(() => execute(repo, 'bisect start')).toThrow(/is not supported/)
     // pull is refused on purpose rather than for lack of machinery: it hides
     // the half of its job that rewrites your history.
     expect(() => execute(repo, 'pull')).toThrow(/fetch/)
   })
 
   it('sends rebase -i to the todo panel rather than guessing', () => {
-    expect(() => execute(repo, 'rebase -i HEAD~3')).toThrow(/panel “Rebase interaktif”/)
+    expect(() => execute(repo, 'rebase -i HEAD~3')).toThrow(/Interactive rebase/)
   })
 
   it('defaults reset to --mixed, as git-reset(1) specifies', () => {

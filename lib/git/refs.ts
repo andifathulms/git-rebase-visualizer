@@ -41,7 +41,10 @@ export function refKind(ref: RefName): RefKind {
   if (ref.startsWith(HEADS)) return 'branch'
   if (ref.startsWith(TAGS)) return 'tag'
   if (ref.startsWith(REMOTES)) return 'remote'
-  throw new GitError('invariant', `ref tanpa namespace yang dikenal: ${ref}`)
+  throw new GitError('invariant', {
+    en: `ref with no known namespace: ${ref}`,
+    id: `ref tanpa namespace yang dikenal: ${ref}`,
+  })
 }
 
 /** `refs/heads/main` → `main`; `refs/remotes/origin/main` → `origin/main`. */
@@ -65,7 +68,12 @@ export function readRef(refs: RefMap, ref: RefName): Oid | undefined {
 
 export function requireRef(refs: RefMap, ref: RefName): Oid {
   const oid = readRef(refs, ref)
-  if (oid === undefined) throw new GitError('unknown-ref', `ref tidak ditemukan: ${ref}`)
+  if (oid === undefined) {
+    throw new GitError('unknown-ref', {
+      en: `ref not found: ${ref}`,
+      id: `ref tidak ditemukan: ${ref}`,
+    })
+  }
   return oid
 }
 

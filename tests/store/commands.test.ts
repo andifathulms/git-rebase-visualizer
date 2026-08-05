@@ -106,7 +106,7 @@ describe('branch and checkout', () => {
     repo = commitFile(repo, 'a.txt', ['versi fitur'], 'ubah a')
     repo = edit(repo, 'a.txt', ['belum di-commit'])
 
-    expect(() => checkout(repo, { target: 'main' })).toThrow(/perubahan lokal/)
+    expect(() => checkout(repo, { target: 'main' })).toThrow(/local changes/)
   })
 
   it('carries across a local change to a file the switch does not touch', () => {

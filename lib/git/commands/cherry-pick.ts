@@ -37,7 +37,10 @@ function applyPick(repo: Repository, source: Oid, onto: Oid) {
 function record(repo: Repository, files: FileMap, source: Oid): { repo: Repository; oid: Oid } {
   const original = requireCommit(repo.store, source)
   const head = resolveHead(repo.refs, repo.head)
-  if (!head) throw new GitError('unborn', 'belum ada commit di branch ini')
+  if (!head) throw new GitError('unborn', {
+      en: 'there are no commits on this branch yet',
+      id: 'belum ada commit di branch ini',
+    })
 
   const written = writeTree(repo.store, files)
   const ticked = tick({ ...repo, store: written.store })
@@ -72,7 +75,10 @@ function run(repo: Repository, queue: readonly Oid[]): CommandResult {
   while (remaining.length > 0) {
     const source = remaining[0]
     const head = resolveHead(working.refs, working.head)
-    if (!head) throw new GitError('unborn', 'belum ada commit di branch ini')
+    if (!head) throw new GitError('unborn', {
+      en: 'there are no commits on this branch yet',
+      id: 'belum ada commit di branch ini',
+    })
 
     const applied = applyPick(working, source, head)
     if (applied.conflicts.length > 0) {
@@ -94,7 +100,10 @@ function run(repo: Repository, queue: readonly Oid[]): CommandResult {
           {
             type: 'message',
             tone: 'warn',
-            text: `Konflik saat cherry-pick ${source.slice(0, 7)} pada ${applied.conflicts.join(', ')}. Selesaikan, \`add\`, lalu \`cherry-pick --continue\`.`,
+            text: {
+              en: `Conflict cherry-picking ${source.slice(0, 7)} in ${applied.conflicts.join(', ')}. Resolve it, \`add\`, then \`cherry-pick --continue\`.`,
+              id: `Konflik saat cherry-pick ${source.slice(0, 7)} pada ${applied.conflicts.join(', ')}. Selesaikan, \`add\`, lalu \`cherry-pick --continue\`.`,
+            },
           },
         ],
       }
@@ -103,10 +112,14 @@ function run(repo: Repository, queue: readonly Oid[]): CommandResult {
     const recorded = record(working, applied.files, source)
     working = advance(recorded.repo, recorded.oid, `${source.slice(0, 7)} → ${recorded.oid.slice(0, 7)}`)
     events.push({ type: 'object-created', oid: recorded.oid, kind: 'commit' })
+    events.push({ type: 'commits-replaced', pairs: [{ from: source, to: recorded.oid }] })
     events.push({
       type: 'message',
       tone: 'info',
-      text: `${source.slice(0, 7)} disalin sebagai ${recorded.oid.slice(0, 7)} — objek baru, id baru; yang asli tetap di tempatnya.`,
+      text: {
+        en: `${source.slice(0, 7)} copied as ${recorded.oid.slice(0, 7)} — a new object with a new id; the original stays exactly where it was.`,
+        id: `${source.slice(0, 7)} disalin sebagai ${recorded.oid.slice(0, 7)} — objek baru, id baru; yang asli tetap di tempatnya.`,
+      },
     })
     remaining = remaining.slice(1)
   }
@@ -116,9 +129,15 @@ function run(repo: Repository, queue: readonly Oid[]): CommandResult {
 
 export function cherryPick(repo: Repository, revisions: readonly string[]): CommandResult {
   if (repo.pending) {
-    throw new GitError('pending', `masih ada ${repo.pending.type} yang belum selesai`)
+    throw new GitError('pending', {
+      en: `a ${repo.pending.type} is still in progress`,
+      id: `masih ada ${repo.pending.type} yang belum selesai`,
+    })
   }
-  if (revisions.length === 0) throw new GitError('bad-args', 'cherry-pick butuh minimal satu commit')
+  if (revisions.length === 0) throw new GitError('bad-args', {
+      en: 'cherry-pick needs at least one commit',
+      id: 'cherry-pick butuh minimal satu commit',
+    })
 
   return run(repo, revisions.map((revision) => revParseCommit(repo, revision)))
 }
@@ -126,7 +145,10 @@ export function cherryPick(repo: Repository, revisions: readonly string[]): Comm
 export function cherryPickContinue(repo: Repository): CommandResult {
   const pending = repo.pending
   if (!pending || pending.type !== 'cherry-pick') {
-    throw new GitError('no-cherry-pick', 'tidak ada cherry-pick yang sedang berjalan')
+    throw new GitError('no-cherry-pick', {
+      en: 'there is no cherry-pick in progress',
+      id: 'tidak ada cherry-pick yang sedang berjalan',
+    })
   }
 
   const unresolved = pending.conflicts.filter((path) => {
@@ -134,7 +156,10 @@ export function cherryPickContinue(repo: Repository): CommandResult {
     return staged !== undefined && hasConflictMarkers(staged)
   })
   if (unresolved.length > 0) {
-    throw new GitError('unresolved', `masih ada penanda konflik di ${unresolved.join(', ')}`)
+    throw new GitError('unresolved', {
+      en: `conflict markers are still present in ${unresolved.join(', ')}`,
+      id: `masih ada penanda konflik di ${unresolved.join(', ')}`,
+    })
   }
 
   const recorded = record({ ...repo, pending: null }, repo.index, pending.current)
@@ -145,12 +170,21 @@ export function cherryPickContinue(repo: Repository): CommandResult {
 export function cherryPickAbort(repo: Repository): CommandResult {
   const pending = repo.pending
   if (!pending || pending.type !== 'cherry-pick') {
-    throw new GitError('no-cherry-pick', 'tidak ada cherry-pick yang sedang berjalan')
+    throw new GitError('no-cherry-pick', {
+      en: 'there is no cherry-pick in progress',
+      id: 'tidak ada cherry-pick yang sedang berjalan',
+    })
   }
   const head = resolveHead(repo.refs, repo.head)
   const files = head ? treeOf(repo, head) : {}
   return {
     repo: { ...repo, index: files, worktree: files, pending: null },
-    events: [{ type: 'message', tone: 'info', text: 'Cherry-pick dibatalkan.' }],
+    events: [
+      {
+        type: 'message',
+        tone: 'info',
+        text: { en: 'Cherry-pick aborted.', id: 'Cherry-pick dibatalkan.' },
+      },
+    ],
   }
 }

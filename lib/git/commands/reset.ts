@@ -29,7 +29,10 @@ export function reset(
   options: { revision: string; mode: ResetMode },
 ): CommandResult {
   const previous = resolveHead(repo.refs, repo.head)
-  if (!previous) throw new GitError('unborn', 'belum ada commit untuk di-reset')
+  if (!previous) throw new GitError('unborn', {
+      en: 'there is no commit to reset from yet',
+      id: 'belum ada commit untuk di-reset',
+    })
 
   const target = revParseCommit(repo, options.revision)
   const targetFiles = readTree(repo.store, requireCommit(repo.store, target).tree)
@@ -60,12 +63,22 @@ export function reset(
     tone: options.mode === 'hard' ? 'destructive' : 'info',
     text:
       options.mode === 'hard'
-        ? `HEAD dipindah ke ${target.slice(0, 7)} dan working tree ditimpa. Commit ${previous.slice(0, 7)} tidak lagi ditunjuk siapa pun, tapi masih ada di store — \`reset --hard ${previous.slice(0, 7)}\` atau reflog akan mengembalikannya.`
-        : `HEAD dipindah ke ${target.slice(0, 7)}. ${
-            options.mode === 'soft'
-              ? 'Index dan working tree tidak disentuh, jadi perubahan Anda tetap ter-stage.'
-              : 'Index disetel ulang; working tree tidak disentuh.'
-          }`,
+        ? {
+            en: `HEAD moved to ${target.slice(0, 7)} and the working tree was overwritten. Commit ${previous.slice(0, 7)} is no longer pointed at by anything, but it is still in the store — \`reset --hard ${previous.slice(0, 7)}\` or the reflog will bring it back.`,
+            id: `HEAD dipindah ke ${target.slice(0, 7)} dan working tree ditimpa. Commit ${previous.slice(0, 7)} tidak lagi ditunjuk siapa pun, tapi masih ada di store — \`reset --hard ${previous.slice(0, 7)}\` atau reflog akan mengembalikannya.`,
+          }
+        : {
+            en: `HEAD moved to ${target.slice(0, 7)}. ${
+              options.mode === 'soft'
+                ? 'The index and working tree were not touched, so your changes are still staged.'
+                : 'The index was reset; the working tree was not touched.'
+            }`,
+            id: `HEAD dipindah ke ${target.slice(0, 7)}. ${
+              options.mode === 'soft'
+                ? 'Index dan working tree tidak disentuh, jadi perubahan Anda tetap ter-stage.'
+                : 'Index disetel ulang; working tree tidak disentuh.'
+            }`,
+          },
   })
 
   return { repo: next, events }

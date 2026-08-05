@@ -29,8 +29,14 @@ export function gc(repo: Repository, options: { expireReflog?: boolean } = {}): 
           type: 'message',
           tone: 'info',
           text: options.expireReflog
-            ? 'Tidak ada yang disapu — semua objek masih terjangkau dari ref.'
-            : `Tidak ada yang disapu. ${before} objek masih terjangkau dari ref atau masih disebut reflog. Pakai \`gc --expire-reflog\` untuk membuang reflog lebih dulu — sesudah itu yang yatim benar-benar hilang.`,
+            ? {
+                en: 'Nothing swept — every object is still reachable from a ref.',
+                id: 'Tidak ada yang disapu — semua objek masih terjangkau dari ref.',
+              }
+            : {
+                en: `Nothing swept. All ${before} objects are still reachable from a ref or still named by the reflog. Use \`gc --expire-reflog\` to drop the reflog first — after that the orphans really do go.`,
+                id: `Tidak ada yang disapu. ${before} objek masih terjangkau dari ref atau masih disebut reflog. Pakai \`gc --expire-reflog\` untuk membuang reflog lebih dulu — sesudah itu yang yatim benar-benar hilang.`,
+              },
         },
       ],
     }
@@ -42,7 +48,10 @@ export function gc(repo: Repository, options: { expireReflog?: boolean } = {}): 
       {
         type: 'message',
         tone: 'destructive',
-        text: `${removed.length} objek disapu dari ${before}. Ini satu-satunya operasi yang benar-benar menghapus, dan sekarang tidak ada jalan kembali.`,
+        text: {
+          en: `${removed.length} of ${before} objects swept. This is the only operation that genuinely deletes, and there is no way back from it.`,
+          id: `${removed.length} objek disapu dari ${before}. Ini satu-satunya operasi yang benar-benar menghapus, dan sekarang tidak ada jalan kembali.`,
+        },
       },
     ],
   }

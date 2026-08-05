@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { SUPPORTED_COMMANDS } from '@/lib/git/execute'
+import type { Locale } from '@/lib/i18n/locales'
+import { UI } from '@/lib/i18n/ui'
 
 export interface OutputLine {
   readonly id: number
@@ -13,11 +15,14 @@ export function CommandBar({
   output,
   history,
   onSubmit,
+  locale,
 }: {
   output: readonly OutputLine[]
   history: readonly string[]
   onSubmit: (line: string) => void
+  locale: Locale
 }) {
+  const t = UI[locale]
   const [value, setValue] = useState('')
   const [cursor, setCursor] = useState<number | null>(null)
   const bottom = useRef<HTMLDivElement>(null)
@@ -58,18 +63,18 @@ export function CommandBar({
   return (
     <section className="flex min-h-0 flex-col border border-ink/20 bg-board">
       <header className="flex items-baseline justify-between border-b border-ink/20 px-3 py-2">
-        <span className="label">Command bar</span>
+        <span className="label">{t.commandBar}</span>
         <span className="font-mono text-[11px] text-faded">
-          {SUPPORTED_COMMANDS.length} perintah didukung
+          {SUPPORTED_COMMANDS.length} {t.commandsSupported}
         </span>
       </header>
 
       <div className="min-h-[9rem] flex-1 overflow-y-auto px-3 py-2">
         {output.length === 0 ? (
           <p className="font-mono text-xs text-faded">
-            Coba: <span className="text-ink">write a.txt &quot;satu&quot;</span> lalu{' '}
-            <span className="text-ink">add a.txt</span> lalu{' '}
-            <span className="text-ink">commit -m &quot;awal&quot;</span>
+            {t.commandHint} <span className="text-ink">write a.txt &quot;one&quot;</span> ·{' '}
+            <span className="text-ink">add a.txt</span> ·{' '}
+            <span className="text-ink">commit -m &quot;first&quot;</span>
           </p>
         ) : (
           output.map((line) => (
@@ -100,7 +105,7 @@ export function CommandBar({
           onKeyDown={onKeyDown}
           spellCheck={false}
           autoComplete="off"
-          aria-label="Perintah git"
+          aria-label="git command"
           placeholder="rebase main"
           className="w-full bg-transparent font-mono text-sm text-ink outline-none placeholder:text-faded"
         />

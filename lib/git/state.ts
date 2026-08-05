@@ -7,6 +7,7 @@
  * so the same command sequence produces a byte-identical repository anywhere.
  */
 import type { Oid } from '@/lib/hash'
+import type { Localized } from '@/lib/i18n/localized'
 import type { Signature } from './objects'
 import { emptyStore, type ObjectStore } from './store'
 import type { Head, RefMap, RefName } from './refs'
@@ -155,8 +156,22 @@ export type GitEvent =
     }
   | { readonly type: 'head-moved'; readonly to: Head }
   | { readonly type: 'commits-orphaned'; readonly oids: readonly Oid[] }
+  /**
+   * Old oid → new oid for every commit an operation copied. This is the data
+   * the graft animation needs: a copied commit is drawn beside its original,
+   * which is only possible if the engine says which original it came from.
+   */
+  | {
+      readonly type: 'commits-replaced'
+      readonly pairs: readonly { readonly from: Oid; readonly to: Oid }[]
+    }
   | { readonly type: 'conflict'; readonly paths: readonly string[] }
-  | { readonly type: 'message'; readonly tone: 'info' | 'warn' | 'destructive'; readonly text: string }
+  | {
+      readonly type: 'message'
+      readonly tone: 'info' | 'warn' | 'destructive'
+      /** Both interface languages; the engine never chooses between them. */
+      readonly text: Localized
+    }
 
 export interface CommandResult {
   readonly repo: Repository

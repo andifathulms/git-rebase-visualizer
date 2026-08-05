@@ -18,3 +18,69 @@
     @apply font-display uppercase tracking-[0.18em] text-[11px] text-ink/70;
   }
 }
+
+/*
+ * The one orchestrated moment. PRD §9 "Motion": during a rebase each replayed
+ * commit is created as a new box with a new number, drawn beside its original,
+ * while the branch card's string swings to the new chain and the originals fade
+ * to grey. That animation *is* the lesson — commits are copied, not moved.
+ *
+ * The new box starts at its original's position and travels to its own, so the
+ * copy is visibly a copy. Delays are staggered so a chain replays in order.
+ */
+@layer utilities {
+  @keyframes graft-in {
+    from {
+      opacity: 0;
+      transform: translate(var(--graft-dx, 0px), var(--graft-dy, 0px));
+    }
+    60% {
+      opacity: 1;
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+  }
+
+  @keyframes graft-fade {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0.55;
+    }
+  }
+
+  /* The string being run out from the card to its new box. */
+  @keyframes string-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .graft-new {
+    animation: graft-in 620ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .graft-old {
+    animation: graft-fade 620ms ease-out backwards;
+  }
+
+  .string-draw {
+    stroke-dasharray: 1;
+    animation: string-draw 520ms ease-out backwards;
+  }
+
+  /* Motion is the lesson, but never at the cost of usability. */
+  @media (prefers-reduced-motion: reduce) {
+    .graft-new,
+    .graft-old,
+    .string-draw {
+      animation: none;
+    }
+  }
+}

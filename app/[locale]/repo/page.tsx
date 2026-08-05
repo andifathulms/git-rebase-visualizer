@@ -8,5 +8,5 @@ export function generateStaticParams() {
 
 export default function RepoPage({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound()
-  return <Workbench />
+  return <Workbench locale={params.locale} />
 }

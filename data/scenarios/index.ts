@@ -8,22 +8,29 @@
  *
  * Ids are stable and readable because they appear in shared URLs.
  */
+import type { Localized } from '@/lib/i18n/localized'
+
 export interface Scenario {
   readonly id: string
-  readonly title: string
+  readonly title: Localized
   /** What this exists to teach. Shown before the user runs anything. */
-  readonly lesson: string
+  readonly lesson: Localized
   readonly script: readonly string[]
   /** The command to try next, and why. */
-  readonly next: { readonly command: string; readonly why: string }
+  readonly next: { readonly command: string; readonly why: Localized }
 }
 
 export const SCENARIOS: readonly Scenario[] = [
   {
     id: 'feature-behind-main',
-    title: 'Branch fitur tertinggal di belakang main',
-    lesson:
-      'Bentuk paling umum. Setelah rebase, perhatikan hash setiap commit fitur berubah — bukan karena isinya berubah, tapi karena parent-nya berubah, dan parent ikut masuk ke hash.',
+    title: {
+      en: 'A feature branch left behind main',
+      id: 'Branch fitur tertinggal di belakang main',
+    },
+    lesson: {
+      en: 'The commonest shape. After the rebase, watch every feature commit change its hash — not because the content changed, but because the parent did, and the parent is part of the hash.',
+      id: 'Bentuk paling umum. Setelah rebase, perhatikan hash setiap commit fitur berubah — bukan karena isinya berubah, tapi karena parent-nya berubah, dan parent ikut masuk ke hash.',
+    },
     script: [
       'write catatan.txt "baris satu"',
       'add catatan.txt',
@@ -42,14 +49,19 @@ export const SCENARIOS: readonly Scenario[] = [
     ],
     next: {
       command: 'rebase main',
-      why: 'Dua commit fitur akan ditulis ulang jadi objek baru; yang lama tetap di rak, memudar.',
+      why: {
+        en: 'Two feature commits will be written as new objects; the old ones stay on the shelf, faded.',
+        id: 'Dua commit fitur akan ditulis ulang jadi objek baru; yang lama tetap di rak, memudar.',
+      },
     },
   },
   {
     id: 'messy-history',
-    title: 'Riwayat berantakan yang mau dirapikan',
-    lesson:
-      'Tiga commit kecil yang sebaiknya jadi satu. Rebase interaktif menggabungkannya — dan menghasilkan objek baru, bukan mengubah yang lama.',
+    title: { en: 'A messy history to tidy up', id: 'Riwayat berantakan yang mau dirapikan' },
+    lesson: {
+      en: 'Three small commits that ought to be one. Interactive rebase folds them together — producing new objects rather than altering the old ones.',
+      id: 'Tiga commit kecil yang sebaiknya jadi satu. Rebase interaktif menggabungkannya — dan menghasilkan objek baru, bukan mengubah yang lama.',
+    },
     script: [
       'write app.txt "versi 1"',
       'add app.txt',
@@ -67,15 +79,20 @@ export const SCENARIOS: readonly Scenario[] = [
       'commit -m "wip lagi"',
     ],
     next: {
-      command: 'buka panel rebase interaktif',
-      why: 'Ubah tiga langkah terakhir jadi pick + squash + squash.',
+      command: 'open the interactive rebase panel',
+      why: {
+        en: 'Set the three steps to pick + squash + squash.',
+        id: 'Ubah tiga langkah terakhir jadi pick + squash + squash.',
+      },
     },
   },
   {
     id: 'published-branch',
-    title: 'Branch yang sudah dipublikasikan',
-    lesson:
-      'Di sini rebase adalah pilihan yang salah. Commit yang sudah dipegang orang lain tidak boleh ditulis ulang — pakai revert, yang menambah riwayat alih-alih mengubahnya.',
+    title: { en: 'A branch other people already have', id: 'Branch yang sudah dipublikasikan' },
+    lesson: {
+      en: 'Here rebase is the wrong tool. Commits other people already hold must not be rewritten — use revert, which adds to the history instead of changing it.',
+      id: 'Di sini rebase adalah pilihan yang salah. Commit yang sudah dipegang orang lain tidak boleh ditulis ulang — pakai revert, yang menambah riwayat alih-alih mengubahnya.',
+    },
     script: [
       'write rilis.txt "v1"',
       'add rilis.txt',
@@ -92,14 +109,19 @@ export const SCENARIOS: readonly Scenario[] = [
     ],
     next: {
       command: 'revert HEAD~1',
-      why: 'Bandingkan dengan `reset --hard HEAD~2`: yang satu aman untuk kolaborator, yang lain tidak.',
+      why: {
+        en: 'Compare it with `reset --hard HEAD~2`: one is safe for collaborators, the other is not.',
+        id: 'Bandingkan dengan `reset --hard HEAD~2`: yang satu aman untuk kolaborator, yang lain tidak.',
+      },
     },
   },
   {
     id: 'accidental-hard-reset',
-    title: 'Reset --hard yang tidak disengaja',
-    lesson:
-      'Situasi yang bikin panik. Commit-nya tidak ke mana-mana: masih di store, masih disebut reflog, dan bisa diambil kembali dengan satu perintah.',
+    title: { en: 'An accidental reset --hard', id: 'Reset --hard yang tidak disengaja' },
+    lesson: {
+      en: 'The situation that causes panic. The commit went nowhere: it is still in the store, still named by the reflog, and one command brings it back.',
+      id: 'Situasi yang bikin panik. Commit-nya tidak ke mana-mana: masih di store, masih disebut reflog, dan bisa diambil kembali dengan satu perintah.',
+    },
     script: [
       'write penting.txt "kerja seharian"',
       'add penting.txt',
@@ -111,14 +133,19 @@ export const SCENARIOS: readonly Scenario[] = [
     ],
     next: {
       command: 'reset --hard HEAD@{1}',
-      why: 'Lihat panel reflog: commit yang “hilang” ada di sana, memudar tapi utuh.',
+      why: {
+        en: 'Look at the reflog panel: the “lost” commit is right there, faded but whole.',
+        id: 'Lihat panel reflog: commit yang “hilang” ada di sana, memudar tapi utuh.',
+      },
     },
   },
   {
     id: 'force-push-danger',
-    title: 'Rebase branch yang sudah di-push',
-    lesson:
-      'Branch ini sudah ada di origin. Rebase menulis ulang commit-nya, jadi push berikutnya ditolak — dan memaksanya membuat commit lama di origin tidak lagi ditunjuk apa pun. Rekan yang sudah fetch tetap memilikinya; yang clone hari ini tidak akan pernah melihatnya.',
+    title: { en: 'Rebasing a branch you already pushed', id: 'Rebase branch yang sudah di-push' },
+    lesson: {
+      en: 'This branch is already on origin. The rebase rewrites its commits, so the next push is rejected — and forcing it leaves the old commit on origin named by nothing. A colleague who already fetched still has it; anyone cloning today never will.',
+      id: 'Branch ini sudah ada di origin. Rebase menulis ulang commit-nya, jadi push berikutnya ditolak — dan memaksanya membuat commit lama di origin tidak lagi ditunjuk apa pun. Rekan yang sudah fetch tetap memilikinya; yang clone hari ini tidak akan pernah melihatnya.',
+    },
     script: [
       'write layanan.txt "versi awal"',
       'add layanan.txt',
@@ -134,14 +161,19 @@ export const SCENARIOS: readonly Scenario[] = [
     ],
     next: {
       command: 'push origin main',
-      why: 'Akan ditolak, dan pesannya menyebut commit mana yang akan terlantar. Bandingkan dengan `push origin main --force`, lalu lihat panel origin.',
+      why: {
+        en: 'It will be rejected, and the message names which commit would be stranded. Compare with `push origin main --force`, then look at the origin panel.',
+        id: 'Akan ditolak, dan pesannya menyebut commit mana yang akan terlantar. Bandingkan dengan `push origin main --force`, lalu lihat panel origin.',
+      },
     },
   },
   {
     id: 'conflicting-rebase',
-    title: 'Rebase yang berkonflik',
-    lesson:
-      'Dua branch mengubah baris yang sama. Rebase berhenti di tengah tanpa menggerakkan ref dan tanpa membuat objek — resolusi Anda yang menentukan hash commit hasilnya.',
+    title: { en: 'A rebase that conflicts', id: 'Rebase yang berkonflik' },
+    lesson: {
+      en: 'Two branches changed the same line. The rebase stops part-way without moving a ref or writing an object — and your resolution is what decides the resulting commit hash.',
+      id: 'Dua branch mengubah baris yang sama. Rebase berhenti di tengah tanpa menggerakkan ref dan tanpa membuat objek — resolusi Anda yang menentukan hash commit hasilnya.',
+    },
     script: [
       'write konfig.txt "port = 3000|host = localhost"',
       'add konfig.txt',
@@ -157,7 +189,10 @@ export const SCENARIOS: readonly Scenario[] = [
     ],
     next: {
       command: 'rebase main',
-      why: 'Selesaikan konflik di panel working tree, `add konfig.txt`, lalu `rebase --continue`.',
+      why: {
+        en: 'Resolve it in the working-tree panel, `add konfig.txt`, then `rebase --continue`.',
+        id: 'Selesaikan konflik di panel working tree, `add konfig.txt`, lalu `rebase --continue`.',
+      },
     },
   },
 ]

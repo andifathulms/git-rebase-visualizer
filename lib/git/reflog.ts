@@ -51,13 +51,16 @@ export function resolveReflog(
   const entries = entriesFor(reflog, ref)
   const entry = entries[n]
   if (!entry) {
-    throw new GitError(
-      'unknown-revision',
-      `${ref}@{${n}} tidak ada — reflog untuk ${ref} hanya punya ${entries.length} entri`,
-    )
+    throw new GitError('unknown-revision', {
+      en: `${ref}@{${n}} does not exist — the reflog for ${ref} has only ${entries.length} entries`,
+      id: `${ref}@{${n}} tidak ada — reflog untuk ${ref} hanya punya ${entries.length} entri`,
+    })
   }
   if (entry.after === null) {
-    throw new GitError('unknown-revision', `${ref}@{${n}} menunjuk ke penghapusan ref`)
+    throw new GitError('unknown-revision', {
+      en: `${ref}@{${n}} points at a ref deletion`,
+      id: `${ref}@{${n}} menunjuk ke penghapusan ref`,
+    })
   }
   return entry.after
 }

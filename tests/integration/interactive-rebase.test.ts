@@ -136,8 +136,8 @@ describe('interactive rebase', () => {
 
   it('rejects a malformed todo by name rather than guessing', () => {
     const repo = messy()
-    expect(() => execute(repo, 'rebase -i main --todo=squish:abcd')).toThrow(/bukan aksi todo/)
-    expect(() => execute(repo, 'rebase -i main --todo=pick:abcd')).toThrow(/40 karakter/)
+    expect(() => execute(repo, 'rebase -i main --todo=squish:abcd')).toThrow(/not a todo action/)
+    expect(() => execute(repo, 'rebase -i main --todo=pick:abcd')).toThrow(/40-character oid/)
   })
 
   it('refuses a bare rebase -i, pointing at the panel', () => {
@@ -147,7 +147,7 @@ describe('interactive rebase', () => {
   it('refuses squash as the first step, which has nothing to squash into', () => {
     const repo = messy()
     expect(() => execute(repo, todoLine(repo, ['squash', 'pick', 'pick']))).toThrow(
-      /tidak boleh jadi langkah pertama/,
+      /cannot be the first step/,
     )
   })
 })

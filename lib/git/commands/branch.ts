@@ -20,7 +20,10 @@ export function createBranch(
 
   const existing = readRef(repo.refs, ref)
   if (existing !== undefined && !force) {
-    throw new GitError('exists', `branch ${name} sudah ada`)
+    throw new GitError('exists', {
+      en: `branch ${name} already exists`,
+      id: `branch ${name} sudah ada`,
+    })
   }
 
   const target = revParseCommit(repo, startPoint ?? 'HEAD')
@@ -39,7 +42,10 @@ export function createBranch(
       {
         type: 'message',
         tone: 'info',
-        text: `Branch ${name} menunjuk ke ${target.slice(0, 7)}.`,
+        text: {
+          en: `Branch ${name} now points at ${target.slice(0, 7)}.`,
+          id: `Branch ${name} menunjuk ke ${target.slice(0, 7)}.`,
+        },
       },
     ],
   }
@@ -48,13 +54,18 @@ export function createBranch(
 export function deleteBranch(repo: Repository, name: string): CommandResult {
   const ref = branchRef(name)
   const existing = readRef(repo.refs, ref)
-  if (existing === undefined) throw new GitError('unknown-ref', `branch ${name} tidak ada`)
+  if (existing === undefined) {
+    throw new GitError('unknown-ref', {
+      en: `branch ${name} does not exist`,
+      id: `branch ${name} tidak ada`,
+    })
+  }
 
   if (headBranch(repo.head) === ref) {
-    throw new GitError(
-      'checked-out',
-      `tidak bisa menghapus ${name} — branch ini sedang di-checkout`,
-    )
+    throw new GitError('checked-out', {
+      en: `cannot delete ${name} — it is the branch you have checked out`,
+      id: `tidak bisa menghapus ${name} — branch ini sedang di-checkout`,
+    })
   }
 
   const moved = updateRef(repo, ref, null, 'branch: Deleted', `dulu ${existing.slice(0, 7)}`)
@@ -68,7 +79,10 @@ export function deleteBranch(repo: Repository, name: string): CommandResult {
         tone: 'destructive',
         // The commits are still on the shelf; only the card is gone. Saying so
         // is the difference between panic and a two-command recovery.
-        text: `Branch ${name} dihapus. Commit-nya masih ada di store dan tercatat di reflog — buat branch baru di ${existing.slice(0, 7)} untuk mengambilnya kembali.`,
+        text: {
+          en: `Branch ${name} deleted. Its commits are still in the store and still named by the reflog — create a branch at ${existing.slice(0, 7)} to get them back.`,
+          id: `Branch ${name} dihapus. Commit-nya masih ada di store dan tercatat di reflog — buat branch baru di ${existing.slice(0, 7)} untuk mengambilnya kembali.`,
+        },
       },
     ],
   }
@@ -92,6 +106,9 @@ export function validateBranchName(name: string): void {
     name.includes('..') ||
     /[\s~^:?*[\\]/.test(name)
   ) {
-    throw new GitError('bad-name', `nama branch tidak sah: ${JSON.stringify(name)}`)
+    throw new GitError('bad-name', {
+      en: `invalid branch name: ${JSON.stringify(name)}`,
+      id: `nama branch tidak sah: ${JSON.stringify(name)}`,
+    })
   }
 }

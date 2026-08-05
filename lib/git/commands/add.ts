@@ -13,7 +13,10 @@ export function add(repo: Repository, paths: readonly string[]): CommandResult {
   const wanted = paths.includes('.') || paths.includes('-A') ? filePaths(repo.worktree) : paths
 
   if (wanted.length === 0) {
-    throw new GitError('bad-args', 'add butuh path — gunakan `git add .` untuk semuanya')
+    throw new GitError('bad-args', {
+      en: 'add needs a path — use `git add .` for everything',
+      id: 'add butuh path — gunakan `git add .` untuk semuanya',
+    })
   }
 
   const index: Record<string, readonly string[]> = { ...repo.index }
@@ -24,7 +27,10 @@ export function add(repo: Repository, paths: readonly string[]): CommandResult {
       // git-add(1) errors on a pathspec matching nothing; deletions are staged
       // by removing the entry, which is what an absent working-tree file means.
       if (repo.index[path] === undefined) {
-        throw new GitError('bad-path', `pathspec '${path}' tidak cocok dengan file mana pun`)
+        throw new GitError('bad-path', {
+          en: `pathspec '${path}' did not match any file`,
+          id: `pathspec '${path}' tidak cocok dengan file mana pun`,
+        })
       }
       delete index[path]
     } else {
@@ -39,7 +45,10 @@ export function add(repo: Repository, paths: readonly string[]): CommandResult {
       {
         type: 'message',
         tone: 'info',
-        text: `${wanted.length} path di-stage.`,
+        text: {
+          en: `${wanted.length} path(s) staged.`,
+          id: `${wanted.length} path di-stage.`,
+        },
       },
     ],
   }

@@ -53,10 +53,10 @@ export function checkoutContent(
   )
 
   if (dirty.length > 0) {
-    throw new GitError(
-      'local-changes',
-      `perubahan lokal pada ${dirty.join(', ')} akan tertimpa oleh checkout — commit atau buang dulu`,
-    )
+    throw new GitError('local-changes', {
+      en: `local changes to ${dirty.join(', ')} would be overwritten by checkout — commit or discard them first`,
+      id: `perubahan lokal pada ${dirty.join(', ')} akan tertimpa oleh checkout — commit atau buang dulu`,
+    })
   }
 
   const index: Record<string, readonly string[]> = {}
@@ -116,7 +116,10 @@ export function checkout(
         {
           type: 'message',
           tone: 'info',
-          text: `Berpindah ke branch ${shortRef(branch)}. HEAD sekarang menempel pada kartu branch, bukan pada commit.`,
+          text: {
+            en: `Switched to branch ${shortRef(branch)}. HEAD is now attached to the branch card, not to a commit.`,
+            id: `Berpindah ke branch ${shortRef(branch)}. HEAD sekarang menempel pada kartu branch, bukan pada commit.`,
+          },
         },
       ],
     }
@@ -140,7 +143,10 @@ export function checkout(
       {
         type: 'message',
         tone: 'warn',
-        text: `HEAD detached di ${commitOid.slice(0, 7)}. Commit yang dibuat di sini tidak diikuti branch mana pun — kalau Anda pindah lagi, commit itu jadi yatim (masih bisa diambil lewat reflog).`,
+        text: {
+          en: `HEAD detached at ${commitOid.slice(0, 7)}. Commits made here have no branch following them — move away again and they become orphans (still recoverable through the reflog).`,
+          id: `HEAD detached di ${commitOid.slice(0, 7)}. Commit yang dibuat di sini tidak diikuti branch mana pun — kalau Anda pindah lagi, commit itu jadi yatim (masih bisa diambil lewat reflog).`,
+        },
       },
     ],
   }

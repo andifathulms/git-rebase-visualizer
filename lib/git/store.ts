@@ -49,7 +49,12 @@ export function get(store: ObjectStore, oid: Oid): GitObject | undefined {
 
 export function requireObject(store: ObjectStore, oid: Oid): GitObject {
   const object = get(store, oid)
-  if (!object) throw new GitError('missing-object', `objek tidak ada di store: ${oid}`)
+  if (!object) {
+    throw new GitError('missing-object', {
+      en: `object not in the store: ${oid}`,
+      id: `objek tidak ada di store: ${oid}`,
+    })
+  }
   return object
 }
 
@@ -60,7 +65,10 @@ function requireOfType<T extends GitObject>(
 ): T {
   const object = requireObject(store, oid)
   if (object.type !== type) {
-    throw new GitError('wrong-type', `objek ${oid} bertipe ${object.type}, bukan ${type}`)
+    throw new GitError('wrong-type', {
+      en: `object ${oid} is a ${object.type}, not a ${type}`,
+      id: `objek ${oid} bertipe ${object.type}, bukan ${type}`,
+    })
   }
   return object as T
 }
@@ -94,10 +102,10 @@ export function put(store: ObjectStore, object: GitObject): ObjectStore {
   const existing = get(store, object.oid)
   if (existing) {
     if (!sameBytes(serialize(existing), serialize(object))) {
-      throw new GitError(
-        'invariant',
-        `tabrakan oid dengan isi berbeda pada ${object.oid} — hash pasti diberikan, bukan dihitung`,
-      )
+      throw new GitError('invariant', {
+        en: `oid collision with different content at ${object.oid} — the hash must have been assigned rather than computed`,
+        id: `tabrakan oid dengan isi berbeda pada ${object.oid} — hash pasti diberikan, bukan dihitung`,
+      })
     }
     return store
   }

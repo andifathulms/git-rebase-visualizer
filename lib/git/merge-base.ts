@@ -48,10 +48,10 @@ export function mergeBases(store: ObjectStore, a: Oid, b: Oid): Oid[] {
 export function mergeBase(store: ObjectStore, a: Oid, b: Oid): Oid | undefined {
   const bases = mergeBases(store, a, b)
   if (bases.length > 1) {
-    throw new GitError(
-      'criss-cross',
-      `ada ${bases.length} merge base antara ${a.slice(0, 7)} dan ${b.slice(0, 7)} (riwayat criss-cross). Cangkok hanya melakukan three-way merge biasa dan tidak menebak yang mana — lihat PRD §4.`,
-    )
+    throw new GitError('criss-cross', {
+      en: `there are ${bases.length} merge bases between ${a.slice(0, 7)} and ${b.slice(0, 7)} (a criss-cross history). Cangkok only does a plain three-way merge and will not guess which one to use — see PRD §4.`,
+      id: `ada ${bases.length} merge base antara ${a.slice(0, 7)} dan ${b.slice(0, 7)} (riwayat criss-cross). Cangkok hanya melakukan three-way merge biasa dan tidak menebak yang mana — lihat PRD §4.`,
+    })
   }
   return bases[0]
 }

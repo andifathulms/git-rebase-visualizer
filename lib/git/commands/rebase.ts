@@ -51,10 +51,10 @@ export function commitsToReplay(repo: Repository, upstream: Oid, head: Oid): Oid
   while (!upstreamSide.has(current)) {
     const commit = requireCommit(repo.store, current)
     if (commit.parents.length > 1) {
-      throw new GitError(
-        'unsupported',
-        `${current.slice(0, 7)} adalah merge commit. Rebase melewati merge (--rebase-merges) tidak didukung — lihat PRD §4.`,
-      )
+      throw new GitError('unsupported', {
+        en: `${current.slice(0, 7)} is a merge commit. Rebasing across merges (--rebase-merges) is not supported — see PRD §4.`,
+        id: `${current.slice(0, 7)} adalah merge commit. Rebase melewati merge (--rebase-merges) tidak didukung — lihat PRD §4.`,
+      })
     }
     list.unshift(current)
     const parent = commit.parents[0]
@@ -70,7 +70,10 @@ export function planRebase(
   options: { upstream: string; onto?: string },
 ): { steps: RebaseStep[]; onto: Oid; upstream: Oid; head: Oid } {
   const head = resolveHead(repo.refs, repo.head)
-  if (!head) throw new GitError('unborn', 'belum ada commit di branch ini')
+  if (!head) throw new GitError('unborn', {
+      en: 'there are no commits on this branch yet',
+      id: 'belum ada commit di branch ini',
+    })
 
   const upstream = revParseCommit(repo, options.upstream)
   const onto = options.onto ? revParseCommit(repo, options.onto) : upstream
@@ -146,13 +149,19 @@ function runTodo(repo: Repository, pending: Extract<PendingOperation, { type: 'r
       events.push({
         type: 'message',
         tone: 'info',
-        text: `drop ${step.oid.slice(0, 7)} — dilewati, objek aslinya tetap di store.`,
+        text: {
+          en: `drop ${step.oid.slice(0, 7)} — skipped; the original object stays in the store.`,
+          id: `drop ${step.oid.slice(0, 7)} — dilewati, objek aslinya tetap di store.`,
+        },
       })
       continue
     }
 
     const headOid = resolveHead(working.refs, working.head)
-    if (!headOid) throw new GitError('invariant', 'rebase kehilangan HEAD')
+    if (!headOid) throw new GitError('invariant', {
+      en: 'rebase lost track of HEAD',
+      id: 'rebase kehilangan HEAD',
+    })
 
     const applied = applyOnto(working, step.oid, headOid)
 
@@ -170,7 +179,10 @@ function runTodo(repo: Repository, pending: Extract<PendingOperation, { type: 'r
           {
             type: 'message',
             tone: 'warn',
-            text: `Konflik saat memutar ulang ${step.oid.slice(0, 7)} pada ${applied.conflicts.join(', ')}. Selesaikan, \`add\`, lalu \`rebase --continue\`; atau \`rebase --skip\`, atau \`rebase --abort\` untuk mengembalikan branch ke posisi semula.`,
+            text: {
+              en: `Conflict replaying ${step.oid.slice(0, 7)} in ${applied.conflicts.join(', ')}. Resolve it, \`add\`, then \`rebase --continue\`; or \`rebase --skip\`, or \`rebase --abort\` to put the branch back where it was.`,
+              id: `Konflik saat memutar ulang ${step.oid.slice(0, 7)} pada ${applied.conflicts.join(', ')}. Selesaikan, \`add\`, lalu \`rebase --continue\`; atau \`rebase --skip\`, atau \`rebase --abort\` untuk mengembalikan branch ke posisi semula.`,
+            },
           },
         ],
       }
@@ -180,10 +192,10 @@ function runTodo(repo: Repository, pending: Extract<PendingOperation, { type: 'r
     const headCommit = requireCommit(working.store, headOid)
 
     if (squashing && state.replaced.length === 0) {
-      throw new GitError(
-        'bad-todo',
-        `${step.action} tidak boleh jadi langkah pertama — tidak ada commit sebelumnya untuk digabung`,
-      )
+      throw new GitError('bad-todo', {
+        en: `${step.action} cannot be the first step — there is no preceding commit to fold into`,
+        id: `${step.action} tidak boleh jadi langkah pertama — tidak ada commit sebelumnya untuk digabung`,
+      })
     }
 
     const parents = squashing ? headCommit.parents : [headOid]
@@ -223,11 +235,17 @@ function runTodo(repo: Repository, pending: Extract<PendingOperation, { type: 'r
 
   const finished: Repository = { ...working, pending: null }
   const orphans = orphanedCommits(finished)
+  const rewrites = state.replaced
+    .map((pair) => `${pair.from.slice(0, 7)} → ${pair.to.slice(0, 7)}`)
+    .join(', ')
 
   return {
     repo: finished,
     events: [
       ...events,
+      ...(state.replaced.length > 0
+        ? [{ type: 'commits-replaced' as const, pairs: state.replaced }]
+        : []),
       ...(orphans.length > 0
         ? [{ type: 'commits-orphaned' as const, oids: orphans }]
         : []),
@@ -235,10 +253,14 @@ function runTodo(repo: Repository, pending: Extract<PendingOperation, { type: 'r
         type: 'message',
         tone: 'info',
         text: state.replaced.length
-          ? `Rebase selesai. ${state.replaced.length} commit ditulis ulang sebagai objek baru: ${state.replaced
-              .map((pair) => `${pair.from.slice(0, 7)} → ${pair.to.slice(0, 7)}`)
-              .join(', ')}. Yang lama masih di rak, tanpa kartu yang menunjuknya.`
-          : 'Rebase selesai — tidak ada commit yang perlu diputar ulang.',
+          ? {
+              en: `Rebase complete. ${state.replaced.length} commit(s) rewritten as new objects: ${rewrites}. The originals are still on the shelf, with no card pointing at them.`,
+              id: `Rebase selesai. ${state.replaced.length} commit ditulis ulang sebagai objek baru: ${rewrites}. Yang lama masih di rak, tanpa kartu yang menunjuknya.`,
+            }
+          : {
+              en: 'Rebase complete — there was nothing to replay.',
+              id: 'Rebase selesai — tidak ada commit yang perlu diputar ulang.',
+            },
       },
     ],
   }
@@ -249,10 +271,10 @@ export function rebase(
   options: { upstream: string; onto?: string; todo?: readonly RebaseStep[] },
 ): CommandResult {
   if (repo.pending) {
-    throw new GitError(
-      'pending',
-      `masih ada ${repo.pending.type} yang belum selesai — gunakan --continue atau --abort`,
-    )
+    throw new GitError('pending', {
+      en: `a ${repo.pending.type} is still in progress — use --continue or --abort`,
+      id: `masih ada ${repo.pending.type} yang belum selesai — gunakan --continue atau --abort`,
+    })
   }
 
   const plan = planRebase(repo, options)
@@ -265,7 +287,10 @@ export function rebase(
         {
           type: 'message',
           tone: 'info',
-          text: 'Sudah mutakhir — tidak ada commit di upstream..HEAD.',
+          text: {
+            en: 'Already up to date — there are no commits in upstream..HEAD.',
+            id: 'Sudah mutakhir — tidak ada commit di upstream..HEAD.',
+          },
         },
       ],
     }
@@ -300,25 +325,34 @@ export function rebase(
 export function rebaseContinue(repo: Repository): CommandResult {
   const pending = repo.pending
   if (!pending || pending.type !== 'rebase') {
-    throw new GitError('no-rebase', 'tidak ada rebase yang sedang berjalan')
+    throw new GitError('no-rebase', {
+      en: 'there is no rebase in progress',
+      id: 'tidak ada rebase yang sedang berjalan',
+    })
   }
 
   const step = pending.todo[0]
-  if (!step) throw new GitError('invariant', 'rebase tanpa langkah yang tersisa')
+  if (!step) throw new GitError('invariant', {
+      en: 'rebase with no steps left',
+      id: 'rebase tanpa langkah yang tersisa',
+    })
 
   const unresolved = pending.conflicts.filter((path) => {
     const staged = repo.index[path]
     return staged !== undefined && hasConflictMarkers(staged)
   })
   if (unresolved.length > 0) {
-    throw new GitError(
-      'unresolved',
-      `masih ada penanda konflik di ${unresolved.join(', ')} — perbaiki lalu \`add\` file-nya`,
-    )
+    throw new GitError('unresolved', {
+      en: `conflict markers are still present in ${unresolved.join(', ')} — fix them, then \`add\` the files`,
+      id: `masih ada penanda konflik di ${unresolved.join(', ')} — perbaiki lalu \`add\` file-nya`,
+    })
   }
 
   const headOid = resolveHead(repo.refs, repo.head)
-  if (!headOid) throw new GitError('invariant', 'rebase kehilangan HEAD')
+  if (!headOid) throw new GitError('invariant', {
+      en: 'rebase lost track of HEAD',
+      id: 'rebase kehilangan HEAD',
+    })
 
   const recorded = recordReplay(repo, {
     files: repo.index,
@@ -343,7 +377,10 @@ export function rebaseContinue(repo: Repository): CommandResult {
 export function rebaseSkip(repo: Repository): CommandResult {
   const pending = repo.pending
   if (!pending || pending.type !== 'rebase') {
-    throw new GitError('no-rebase', 'tidak ada rebase yang sedang berjalan')
+    throw new GitError('no-rebase', {
+      en: 'there is no rebase in progress',
+      id: 'tidak ada rebase yang sedang berjalan',
+    })
   }
 
   const headOid = resolveHead(repo.refs, repo.head)
@@ -358,7 +395,10 @@ export function rebaseSkip(repo: Repository): CommandResult {
 export function rebaseAbort(repo: Repository): CommandResult {
   const pending = repo.pending
   if (!pending || pending.type !== 'rebase') {
-    throw new GitError('no-rebase', 'tidak ada rebase yang sedang berjalan')
+    throw new GitError('no-rebase', {
+      en: 'there is no rebase in progress',
+      id: 'tidak ada rebase yang sedang berjalan',
+    })
   }
 
   const restored = pending.branch
@@ -374,9 +414,14 @@ export function rebaseAbort(repo: Repository): CommandResult {
       {
         type: 'message',
         tone: 'info',
-        text: `Rebase dibatalkan; ${
-          pending.branch ? shortRef(pending.branch) : 'HEAD'
-        } kembali ke ${pending.originalHead.slice(0, 7)}. Commit yang sempat dibuat masih ada di store dan tercatat di reflog.`,
+        text: {
+          en: `Rebase aborted; ${
+            pending.branch ? shortRef(pending.branch) : 'HEAD'
+          } is back at ${pending.originalHead.slice(0, 7)}. Any commits it managed to write are still in the store and named by the reflog.`,
+          id: `Rebase dibatalkan; ${
+            pending.branch ? shortRef(pending.branch) : 'HEAD'
+          } kembali ke ${pending.originalHead.slice(0, 7)}. Commit yang sempat dibuat masih ada di store dan tercatat di reflog.`,
+        },
       },
     ],
   }

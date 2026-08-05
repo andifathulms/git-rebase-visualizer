@@ -24,7 +24,10 @@ export function createTag(
   const ref = tagRef(options.name)
 
   if (readRef(repo.refs, ref) !== undefined && !options.force) {
-    throw new GitError('exists', `tag ${options.name} sudah ada`)
+    throw new GitError('exists', {
+      en: `tag ${options.name} already exists`,
+      id: `tag ${options.name} sudah ada`,
+    })
   }
 
   const target = revParse(repo, options.revision ?? 'HEAD')
@@ -38,7 +41,10 @@ export function createTag(
         {
           type: 'message',
           tone: 'info',
-          text: `Tag ${options.name} dibuat sebagai ref saja — tidak ada objek baru.`,
+          text: {
+            en: `Tag ${options.name} created as a ref only — no new object.`,
+            id: `Tag ${options.name} dibuat sebagai ref saja — tidak ada objek baru.`,
+          },
         },
       ],
     }
@@ -64,7 +70,10 @@ export function createTag(
       {
         type: 'message',
         tone: 'info',
-        text: `Tag ${options.name} dibuat sebagai objek ${object.oid.slice(0, 7)} yang menunjuk ke ${target.slice(0, 7)}. Gunakan ${options.name}^{commit} untuk menembusnya.`,
+        text: {
+          en: `Tag ${options.name} created as object ${object.oid.slice(0, 7)}, pointing at ${target.slice(0, 7)}. Use ${options.name}^{commit} to peel through it.`,
+          id: `Tag ${options.name} dibuat sebagai objek ${object.oid.slice(0, 7)} yang menunjuk ke ${target.slice(0, 7)}. Gunakan ${options.name}^{commit} untuk menembusnya.`,
+        },
       },
     ],
   }
@@ -73,14 +82,24 @@ export function createTag(
 export function deleteTag(repo: Repository, name: string): CommandResult {
   const ref = tagRef(name)
   if (readRef(repo.refs, ref) === undefined) {
-    throw new GitError('unknown-ref', `tag ${name} tidak ada`)
+    throw new GitError('unknown-ref', {
+      en: `tag ${name} does not exist`,
+      id: `tag ${name} tidak ada`,
+    })
   }
   const moved = updateRef(repo, ref, null, 'tag: Deleted', name)
   return {
     repo: moved.repo,
     events: [
       ...moved.events,
-      { type: 'message', tone: 'destructive', text: `Tag ${name} dihapus; objeknya tetap ada.` },
+      {
+        type: 'message',
+        tone: 'destructive',
+        text: {
+          en: `Tag ${name} deleted; its object is still there.`,
+          id: `Tag ${name} dihapus; objeknya tetap ada.`,
+        },
+      },
     ],
   }
 }

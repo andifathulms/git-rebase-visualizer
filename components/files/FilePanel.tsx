@@ -11,18 +11,23 @@
 import { useState } from 'react'
 import { hasConflictMarkers } from '@/lib/git/merge3'
 import { filePaths, type FileMap } from '@/lib/git/tree'
+import type { Locale } from '@/lib/i18n/locales'
+import { UI } from '@/lib/i18n/ui'
 
 export function FilePanel({
   worktree,
   index,
   conflicts,
   onWrite,
+  locale,
 }: {
   worktree: FileMap
   index: FileMap
   conflicts: readonly string[]
   onWrite: (path: string, lines: string[]) => void
+  locale: Locale
 }) {
+  const t = UI[locale]
   const paths = filePaths(worktree)
   const [open, setOpen] = useState<string | null>(paths[0] ?? null)
   const [draftPath, setDraftPath] = useState('')
@@ -39,8 +44,8 @@ export function FilePanel({
   return (
     <section className="flex min-h-0 flex-col border border-ink/20">
       <header className="flex items-baseline justify-between border-b border-ink/20 px-3 py-2">
-        <span className="label">Working tree</span>
-        <span className="text-[10px] text-faded">bukan perintah git</span>
+        <span className="label">{t.worktree}</span>
+        <span className="text-[10px] text-faded">{t.notAGitCommand}</span>
       </header>
 
       <div className="flex flex-wrap gap-1 border-b border-ink/20 px-3 py-2">
@@ -70,8 +75,8 @@ export function FilePanel({
           <input
             value={draftPath}
             onChange={(event) => setDraftPath(event.target.value)}
-            placeholder="+ file baru"
-            aria-label="Nama file baru"
+            placeholder={t.newFile}
+            aria-label={t.newFile}
             className="w-28 border border-dashed border-ink/30 bg-transparent px-2 py-0.5 font-mono text-[11px] outline-none placeholder:text-faded"
           />
         </form>
@@ -81,9 +86,7 @@ export function FilePanel({
         <>
           {conflicts.includes(active) ? (
             <p className="border-b border-stamp/40 bg-stamp/5 px-3 py-1.5 text-[11px] text-stamp">
-              Konflik. Hapus penanda <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>{' '}
-              <code>=======</code> <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>, simpan isi yang
-              benar, lalu <code>add {active}</code>.
+              {t.conflictHelp} <code>add {active}</code>.
             </p>
           ) : null}
           <textarea
@@ -91,18 +94,17 @@ export function FilePanel({
             defaultValue={(worktree[active] ?? []).join('\n')}
             onBlur={(event) => onWrite(active, event.target.value.split('\n'))}
             spellCheck={false}
-            aria-label={`Isi ${active}`}
+            aria-label={active}
             className={`min-h-[10rem] flex-1 resize-none bg-transparent px-3 py-2 font-mono text-xs leading-relaxed outline-none ${
               hasConflictMarkers(worktree[active] ?? []) ? 'text-stamp' : 'text-ink'
             }`}
           />
           <p className="border-t border-ink/20 px-3 py-1 text-[10px] text-faded">
-            Perubahan tersimpan saat kursor meninggalkan kotak. Belum jadi objek sampai{' '}
-            <code>add</code>.
+            {t.savesOnBlur} <code>add</code>.
           </p>
         </>
       ) : (
-        <p className="px-3 py-3 font-mono text-xs text-faded">Belum ada file.</p>
+        <p className="px-3 py-3 font-mono text-xs text-faded">{t.noFiles}</p>
       )}
     </section>
   )

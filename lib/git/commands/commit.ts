@@ -19,7 +19,12 @@ export function commit(
   options: { message: string; allowEmpty?: boolean },
 ): CommandResult {
   const message = options.message.trim()
-  if (message === '') throw new GitError('bad-args', 'commit butuh pesan: commit -m "…"')
+  if (message === '') {
+    throw new GitError('bad-args', {
+      en: 'commit needs a message: commit -m "…"',
+      id: 'commit butuh pesan: commit -m "…"',
+    })
+  }
 
   const parentOid = resolveHead(repo.refs, repo.head)
   const parents: Oid[] = parentOid ? [parentOid] : []
@@ -29,10 +34,10 @@ export function commit(
   if (!options.allowEmpty && parentOid) {
     const parent = requireCommit(written.store, parentOid)
     if (parent.tree === written.oid) {
-      throw new GitError(
-        'nothing-to-commit',
-        'tidak ada yang di-commit — index identik dengan HEAD. Pakai --allow-empty jika memang disengaja.',
-      )
+      throw new GitError('nothing-to-commit', {
+        en: 'nothing to commit — the index is identical to HEAD. Use --allow-empty if that is what you meant.',
+        id: 'tidak ada yang di-commit — index identik dengan HEAD. Pakai --allow-empty jika memang disengaja.',
+      })
     }
   }
 

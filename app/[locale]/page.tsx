@@ -1,39 +1,15 @@
 import Link from 'next/link'
-import { LOCALES, isLocale, type Locale } from '@/lib/i18n/locales'
+import { LOCALES, isLocale } from '@/lib/i18n/locales'
+import { UI } from '@/lib/i18n/ui'
 import { notFound } from 'next/navigation'
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }))
 }
 
-const COPY = {
-  id: {
-    tagline:
-      'Rebase tidak memindahkan commit. Ia membuat commit baru — dengan hash baru — dan meninggalkan yang asli di rak.',
-    enter: 'Buka repositori',
-    scenarios: 'Skenario',
-    compare: 'Banding',
-    prior:
-      'Learn Git Branching adalah tutorial yang lebih baik dan lebih lengkap. Ini bukan tutorial; ini sandbox.',
-    honest:
-      'Hash di sini nyata dalam arti diturunkan dari isi objek dan konsisten secara internal — bukan identik dengan hash yang dihasilkan git di mesin Anda.',
-  },
-  en: {
-    tagline:
-      'Rebase does not move commits. It creates new ones — with new hashes — and leaves the originals on the shelf.',
-    enter: 'Open the repository',
-    scenarios: 'Scenarios',
-    compare: 'Compare',
-    prior:
-      'Learn Git Branching is the better and more complete tutorial. This is not a tutorial; it is a sandbox.',
-    honest:
-      'Hashes here are real in the sense of being content-derived and internally consistent — not identical to what git would produce on your machine.',
-  },
-} satisfies Record<Locale, Record<string, string>>
-
 export default function Home({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound()
-  const t = COPY[params.locale]
+  const t = UI[params.locale]
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-8 px-6 py-16">

@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CommandBar, type OutputLine } from '@/components/command/CommandBar'
 import { FilePanel } from '@/components/files/FilePanel'
-import { CommitGraph } from '@/components/graph/CommitGraph'
+import { CommitGraph, type Graft } from '@/components/graph/CommitGraph'
 import { Register } from '@/components/reflog/Register'
 import { TodoPanel } from '@/components/rebase/TodoPanel'
 import { RemotePanel } from '@/components/remote/RemotePanel'
@@ -23,21 +23,28 @@ import { emptyRepository, type GitEvent, type Repository } from '@/lib/git/state
 import { layoutGraph } from '@/lib/layout/lanes'
 import { decodeScript, encodeScript } from '@/lib/share/url'
 import { findScenario, type Scenario } from '@/data/scenarios'
+import type { Locale } from '@/lib/i18n/locales'
+import { UI } from '@/lib/i18n/ui'
 import type { Oid } from '@/lib/hash'
 
-const START = [
-  'write catatan.txt "baris pertama"',
-  'add catatan.txt',
-  'commit -m "awal"',
-]
+const START = ['write notes.txt "first line"', 'add notes.txt', 'commit -m "first"']
 
-export function Workbench({ initialScript }: { initialScript?: readonly string[] }) {
+export function Workbench({
+  locale,
+  initialScript,
+}: {
+  locale: Locale
+  initialScript?: readonly string[]
+}) {
+  const t = UI[locale]
   const [script, setScript] = useState<string[]>([])
   const [output, setOutput] = useState<OutputLine[]>([])
   const [highlighted, setHighlighted] = useState<ReadonlySet<Oid>>(new Set())
   const [selected, setSelected] = useState<Oid | null>(null)
   const [copied, setCopied] = useState(false)
+  const [graft, setGraft] = useState<Graft | null>(null)
   const nextId = useRef(0)
+  const runCount = useRef(0)
 
   // Because the engine is deterministic, the script is the state: replaying it
   // rebuilds a byte-identical repository, which is what makes a shared link
@@ -66,23 +73,35 @@ export function Workbench({ initialScript }: { initialScript?: readonly string[]
               .map((event) => event.oid),
           ),
         )
+        // The graft animation is driven by what the engine reports it copied,
+        // never by guessing from the shape of the graph.
+        const copies = result.events.flatMap((event) =>
+          event.type === 'commits-replaced' ? [...event.pairs] : [],
+        )
+        runCount.current += 1
+        setGraft(copies.length > 0 ? { pairs: copies, run: runCount.current } : null)
+
         for (const event of result.events) {
-          if (event.type === 'message') say(event.tone, event.text)
-          if (event.type === 'conflict') say('warn', `Konflik: ${event.paths.join(', ')}`)
+          if (event.type === 'message') say(event.tone, event.text[locale])
+          if (event.type === 'conflict') {
+            say('warn', `${locale === 'en' ? 'Conflict' : 'Konflik'}: ${event.paths.join(', ')}`)
+          }
           if (event.type === 'commits-orphaned') {
             say(
               'warn',
-              `${event.oids.length} objek sekarang tanpa kartu: ${event.oids
-                .map((oid) => oid.slice(0, 7))
-                .join(', ')}`,
+              `${event.oids.length} ${
+                locale === 'en'
+                  ? 'object(s) now have no card:'
+                  : 'objek sekarang tanpa kartu:'
+              } ${event.oids.map((oid) => oid.slice(0, 7)).join(', ')}`,
             )
           }
         }
       } catch (error) {
-        say('error', error instanceof GitError ? error.message : String(error))
+        say('error', error instanceof GitError ? error.text[locale] : String(error))
       }
     },
-    [repo, say],
+    [repo, say, locale],
   )
 
   // A scenario, a shared link, or the starter history for a first visit.
@@ -133,8 +152,8 @@ export function Workbench({ initialScript }: { initialScript?: readonly string[]
         <div className="flex items-baseline gap-3">
           <span className="font-display text-lg uppercase tracking-[0.16em]">Cangkok</span>
           <span className="font-mono text-xs text-faded">
-            {count(repo.store)} objek · {orphans.length} yatim ·{' '}
-            {headRef ? `HEAD → ${shortRef(headRef)}` : 'HEAD detached'}
+            {count(repo.store)} {t.objects} · {orphans.length} {t.orphans} ·{' '}
+            {headRef ? `HEAD → ${shortRef(headRef)}` : t.detached}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -147,27 +166,29 @@ export function Workbench({ initialScript }: { initialScript?: readonly string[]
             }}
             className="border border-ink/30 px-2 py-1 font-display text-[10px] uppercase tracking-[0.14em]"
           >
-            Kosongkan
+            {t.clear}
           </button>
           <button
             type="button"
             onClick={share}
             className="border border-catalogue px-2 py-1 font-display text-[10px] uppercase tracking-[0.14em] text-catalogue"
           >
-            {copied ? 'Tersalin' : 'Bagikan URL'}
+            {copied ? t.shared : t.share}
           </button>
         </div>
       </header>
 
       {scenario ? (
         <aside className="border-l-2 border-catalogue bg-board px-4 py-3">
-          <p className="label">Skenario — {scenario.title}</p>
+          <p className="label">
+            {t.scenarioLabel} — {scenario.title[locale]}
+          </p>
           <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-ink/80">
-            {scenario.lesson}
+            {scenario.lesson[locale]}
           </p>
           <p className="mt-2 font-mono text-xs text-ink/70">
-            Lalu coba <span className="text-stamp">{scenario.next.command}</span> —{' '}
-            {scenario.next.why}
+            {t.thenTry} <span className="text-stamp">{scenario.next.command}</span> —{' '}
+            {scenario.next.why[locale]}
           </p>
         </aside>
       ) : null}
@@ -184,9 +205,11 @@ export function Workbench({ initialScript }: { initialScript?: readonly string[]
               highlighted={highlighted}
               selected={selected}
               onSelect={setSelected}
+              graft={graft}
+              locale={locale}
             />
           </div>
-          <CommandBar output={output} history={script} onSubmit={submit} />
+          <CommandBar output={output} history={script} onSubmit={submit} locale={locale} />
         </div>
 
         <div className="flex min-w-0 flex-col gap-4">
@@ -195,22 +218,21 @@ export function Workbench({ initialScript }: { initialScript?: readonly string[]
             index={repo.index}
             conflicts={repo.pending?.conflicts ?? []}
             onWrite={(path, lines) => submit(writeLine(path, lines))}
+            locale={locale}
           />
-          <RemotePanel repo={repo} onRun={submit} />
-          <TodoPanel repo={repo} onRun={submit} />
+          <RemotePanel repo={repo} onRun={submit} locale={locale} />
+          <TodoPanel repo={repo} onRun={submit} locale={locale} />
           <Register
             entries={[...repo.reflog].reverse()}
             orphans={orphans}
-            onRecover={(oid) => submit(`branch selamat-${oid.slice(0, 7)} ${oid}`)}
+            onRecover={(oid) => submit(`branch rescued-${oid.slice(0, 7)} ${oid}`)}
+            locale={locale}
           />
         </div>
       </div>
 
       <footer className="border-t border-ink/20 pt-3 text-[11px] leading-relaxed text-ink/60">
-        Hash di sini nyata dalam arti diturunkan dari isi objek dan konsisten secara internal —
-        bukan identik dengan yang dihasilkan <code>git</code> di mesin Anda, karena git ikut
-        memasukkan waktu committer dan identitas penulis. Cangkok memakai jam virtual supaya
-        setiap sesi bisa diulang persis.{' '}
+        {t.honest}{' '}
         <a
           className="text-catalogue underline"
           href="https://learngitbranching.js.org"
@@ -219,7 +241,7 @@ export function Workbench({ initialScript }: { initialScript?: readonly string[]
         >
           Learn Git Branching
         </a>{' '}
-        adalah tutorial yang lebih baik; ini sandbox.
+        — {t.prior}
       </footer>
     </div>
   )

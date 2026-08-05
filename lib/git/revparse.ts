@@ -58,13 +58,11 @@ function resolveOidPrefix(repo: Repository, prefix: string): Oid | undefined {
   const matches = oids(repo.store).filter((oid) => oid.startsWith(prefix))
   if (matches.length === 0) return undefined
   if (matches.length > 1) {
-    throw new GitError(
-      'ambiguous',
-      `${prefix} ambigu — cocok dengan ${matches.length} objek: ${matches
-        .slice(0, 4)
-        .map((oid) => oid.slice(0, 10))
-        .join(', ')}`,
-    )
+    const examples = matches.slice(0, 4).map((oid) => oid.slice(0, 10)).join(', ')
+    throw new GitError('ambiguous', {
+      en: `${prefix} is ambiguous — it matches ${matches.length} objects: ${examples}`,
+      id: `${prefix} ambigu — cocok dengan ${matches.length} objek: ${examples}`,
+    })
   }
   return matches[0]
 }
@@ -76,10 +74,10 @@ function resolveBase(repo: Repository, token: string): Oid {
   if (name === 'HEAD') {
     const oid = resolveHead(repo.refs, repo.head)
     if (!oid) {
-      throw new GitError(
-        'unborn',
-        'HEAD belum menunjuk ke commit mana pun — belum ada commit di branch ini',
-      )
+      throw new GitError('unborn', {
+        en: 'HEAD does not point at any commit yet — there are no commits on this branch',
+        id: 'HEAD belum menunjuk ke commit mana pun — belum ada commit di branch ini',
+      })
     }
     return oid
   }
@@ -90,7 +88,10 @@ function resolveBase(repo: Repository, token: string): Oid {
   const byOid = resolveOidPrefix(repo, name)
   if (byOid !== undefined) return byOid
 
-  throw new GitError('unknown-revision', `revisi tidak dikenal: ${name}`)
+  throw new GitError('unknown-revision', {
+    en: `unknown revision: ${name}`,
+    id: `revisi tidak dikenal: ${name}`,
+  })
 }
 
 function nthParent(repo: Repository, oid: Oid, n: number): Oid {
@@ -98,10 +99,10 @@ function nthParent(repo: Repository, oid: Oid, n: number): Oid {
   if (n === 0) return oid // `^0` names the commit itself, dereferenced to a commit.
   const parent = commit.parents[n - 1]
   if (parent === undefined) {
-    throw new GitError(
-      'unknown-revision',
-      `${oid.slice(0, 7)} tidak punya parent ke-${n} — commit ini punya ${commit.parents.length} parent`,
-    )
+    throw new GitError('unknown-revision', {
+      en: `${oid.slice(0, 7)} has no parent number ${n} — it has ${commit.parents.length}`,
+      id: `${oid.slice(0, 7)} tidak punya parent ke-${n} — commit ini punya ${commit.parents.length} parent`,
+    })
   }
   return parent
 }
@@ -113,10 +114,10 @@ function nthAncestor(repo: Repository, oid: Oid, n: number): Oid {
     const commit = requireCommit(repo.store, current)
     const parent = commit.parents[0]
     if (parent === undefined) {
-      throw new GitError(
-        'unknown-revision',
-        `${oid.slice(0, 7)}~${n} melewati commit akar — riwayat tidak sepanjang itu`,
-      )
+      throw new GitError('unknown-revision', {
+        en: `${oid.slice(0, 7)}~${n} walks past the root commit — the history is not that long`,
+        id: `${oid.slice(0, 7)}~${n} melewati commit akar — riwayat tidak sepanjang itu`,
+      })
     }
     current = parent
   }
@@ -141,10 +142,10 @@ function peel(repo: Repository, oid: Oid, want: string): Oid {
   const object = requireObject(repo.store, current)
   if (want === 'tree' && object.type === 'commit') return object.tree
   if (object.type !== want) {
-    throw new GitError(
-      'wrong-type',
-      `${oid.slice(0, 7)}^{${want}} tidak bisa dipenuhi — objeknya bertipe ${object.type}`,
-    )
+    throw new GitError('wrong-type', {
+      en: `${oid.slice(0, 7)}^{${want}} cannot be satisfied — the object is a ${object.type}`,
+      id: `${oid.slice(0, 7)}^{${want}} tidak bisa dipenuhi — objeknya bertipe ${object.type}`,
+    })
   }
   return current
 }
@@ -154,10 +155,10 @@ function parseReflogSuffix(repo: Repository, base: string, inside: string): Oid 
     const ref = base === '' || base === 'HEAD' || base === '@' ? HEAD_LOG : refNameForLog(repo, base)
     return resolveReflog(repo.reflog, ref, Number(inside))
   }
-  throw new GitError(
-    'unsupported',
-    `@{${inside}} tidak didukung — Cangkok hanya mengenal @{n} (posisi reflog), bukan tanggal atau upstream`,
-  )
+  throw new GitError('unsupported', {
+    en: `@{${inside}} is not supported — Cangkok only understands @{n} (a reflog position), not dates or upstream`,
+    id: `@{${inside}} tidak didukung — Cangkok hanya mengenal @{n} (posisi reflog), bukan tanggal atau upstream`,
+  })
 }
 
 function refNameForLog(repo: Repository, name: string): string {
@@ -172,7 +173,12 @@ function refNameForLog(repo: Repository, name: string): string {
 /** Resolves a revision expression to an object id. */
 export function revParse(repo: Repository, expression: string): Oid {
   const input = expression.trim()
-  if (input === '') throw new GitError('unknown-revision', 'ekspresi revisi kosong')
+  if (input === '') {
+    throw new GitError('unknown-revision', {
+      en: 'empty revision expression',
+      id: 'ekspresi revisi kosong',
+    })
+  }
 
   // Split off the base: everything before the first `~` or `^`.
   const suffixStart = input.search(/[~^]/)
@@ -203,7 +209,10 @@ export function revParse(repo: Repository, expression: string): Oid {
     if (rest.startsWith('{')) {
       const close = rest.indexOf('}')
       if (close === -1) {
-        throw new GitError('bad-revision', `kurung kurawal tidak ditutup pada: ${expression}`)
+        throw new GitError('bad-revision', {
+          en: `unclosed brace in: ${expression}`,
+          id: `kurung kurawal tidak ditutup pada: ${expression}`,
+        })
       }
       const want = rest.slice(1, close)
       rest = rest.slice(close + 1)
@@ -225,10 +234,10 @@ export function revParseCommit(repo: Repository, expression: string): Oid {
   const peeled = peel(repo, oid, '')
   const object = get(repo.store, peeled)
   if (!object || object.type !== 'commit') {
-    throw new GitError(
-      'wrong-type',
-      `${expression} tidak menunjuk ke sebuah commit (${object?.type ?? 'tidak ada'})`,
-    )
+    throw new GitError('wrong-type', {
+      en: `${expression} does not point at a commit (${object?.type ?? 'no such object'})`,
+      id: `${expression} tidak menunjuk ke sebuah commit (${object?.type ?? 'tidak ada'})`,
+    })
   }
   return peeled
 }

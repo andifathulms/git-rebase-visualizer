@@ -38,7 +38,7 @@ describe('merge conflicts', () => {
     repo = step(repo, (r) => merge(r, { revision: 'fitur' }))
     repo = step(repo, (r) => add(r, ['a.txt']))
 
-    expect(() => mergeContinue(repo)).toThrow(/penanda konflik/)
+    expect(() => mergeContinue(repo)).toThrow(/conflict markers/)
   })
 
   it('commits the resolution, and the hash reflects it', () => {
@@ -121,6 +121,6 @@ describe('rebase conflicts', () => {
   it('refuses a second operation while one is pending', () => {
     let repo = conflicting()
     repo = step(repo, (r) => rebase(r, { upstream: 'main' }))
-    expect(() => merge(repo, { revision: 'main' })).toThrow(/belum selesai/)
+    expect(() => merge(repo, { revision: 'main' })).toThrow(/still in progress/)
   })
 })

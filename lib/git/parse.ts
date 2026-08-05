@@ -41,7 +41,9 @@ export function tokenize(input: string): string[] {
     started = true
   }
 
-  if (quote) throw new GitError('bad-args', 'tanda kutip tidak ditutup')
+  if (quote) {
+    throw new GitError('bad-args', { en: 'unclosed quote', id: 'tanda kutip tidak ditutup' })
+  }
   if (started) tokens.push(current)
 
   return tokens
@@ -67,7 +69,9 @@ const VALUE_FLAGS: Record<string, string> = {
 export function parseLine(input: string): ParsedLine {
   const tokens = tokenize(input)
   if (tokens[0] === 'git') tokens.shift()
-  if (tokens.length === 0) throw new GitError('bad-args', 'perintah kosong')
+  if (tokens.length === 0) {
+    throw new GitError('bad-args', { en: 'empty command', id: 'perintah kosong' })
+  }
 
   const command = tokens[0]
   const args: string[] = []
@@ -86,7 +90,12 @@ export function parseLine(input: string): ParsedLine {
     const valueKey = VALUE_FLAGS[token]
     if (valueKey) {
       const value = tokens[i + 1]
-      if (value === undefined) throw new GitError('bad-args', `${token} butuh nilai`)
+      if (value === undefined) {
+        throw new GitError('bad-args', {
+          en: `${token} needs a value`,
+          id: `${token} butuh nilai`,
+        })
+      }
       options[valueKey] = value
       i++
       continue
@@ -104,7 +113,12 @@ export function parseLine(input: string): ParsedLine {
         const key = VALUE_FLAGS[`-${letters[j]}`]
         if (key && j === letters.length - 1) {
           const value = tokens[i + 1]
-          if (value === undefined) throw new GitError('bad-args', `-${letters[j]} butuh nilai`)
+          if (value === undefined) {
+            throw new GitError('bad-args', {
+              en: `-${letters[j]} needs a value`,
+              id: `-${letters[j]} butuh nilai`,
+            })
+          }
           options[key] = value
           i++
         } else {

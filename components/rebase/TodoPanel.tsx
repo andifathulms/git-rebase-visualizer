@@ -15,24 +15,22 @@ import { planRebase } from '@/lib/git/commands/rebase'
 import { GitError } from '@/lib/git/errors'
 import { requireCommit } from '@/lib/git/store'
 import type { RebaseStep, Repository } from '@/lib/git/state'
+import type { Locale } from '@/lib/i18n/locales'
+import { TODO_HELP, UI } from '@/lib/i18n/ui'
 
 const ACTIONS: RebaseStep['action'][] = ['pick', 'reword', 'squash', 'fixup', 'drop']
-
-const EXPLAIN: Record<RebaseStep['action'], string> = {
-  pick: 'putar ulang apa adanya',
-  reword: 'putar ulang, ganti pesannya',
-  squash: 'gabung ke commit di atasnya, pesan digabung',
-  fixup: 'gabung ke commit di atasnya, pesannya dibuang',
-  drop: 'jangan diputar ulang sama sekali',
-}
 
 export function TodoPanel({
   repo,
   onRun,
+  locale,
 }: {
   repo: Repository
   onRun: (line: string) => void
+  locale: Locale
 }) {
+  const t = UI[locale]
+  const explain = TODO_HELP[locale]
   const [upstream, setUpstream] = useState('main')
   const [steps, setSteps] = useState<RebaseStep[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -55,7 +53,13 @@ export function TodoPanel({
 
   function load() {
     if (planned instanceof GitError || planned === null) {
-      setError(planned instanceof GitError ? planned.message : 'tidak bisa menyusun rencana')
+      setError(
+        planned instanceof GitError
+          ? planned.text[locale]
+          : locale === 'en'
+            ? 'cannot build a plan'
+            : 'tidak bisa menyusun rencana',
+      )
       setSteps(null)
       return
     }
@@ -99,12 +103,12 @@ export function TodoPanel({
   return (
     <section className="border border-ink/20">
       <header className="flex flex-wrap items-center justify-between gap-2 border-b border-ink/20 px-3 py-2">
-        <span className="label">Rebase interaktif</span>
+        <span className="label">{t.interactiveRebase}</span>
         <div className="flex items-center gap-2">
           <input
             value={upstream}
             onChange={(event) => setUpstream(event.target.value)}
-            aria-label="Upstream"
+            aria-label={t.upstream}
             spellCheck={false}
             className="w-24 border border-ink/25 bg-transparent px-2 py-0.5 font-mono text-[11px] outline-none"
           />
@@ -113,7 +117,7 @@ export function TodoPanel({
             onClick={load}
             className="border border-catalogue px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.14em] text-catalogue"
           >
-            Susun todo
+            {t.buildTodo}
           </button>
         </div>
       </header>
@@ -122,9 +126,7 @@ export function TodoPanel({
 
       {steps === null ? (
         <p className="px-3 py-2 text-[11px] leading-relaxed text-ink/70">
-          Menyusun daftar <code>upstream..HEAD</code>, urut dari yang paling tua — persis urutan
-          yang dibuka <code>git rebase -i</code>. Hasilnya dijalankan sebagai satu baris perintah
-          yang bisa diputar ulang dan dibagikan.
+          {t.todoIntro}
         </p>
       ) : (
         <>
@@ -137,7 +139,7 @@ export function TodoPanel({
                     onChange={(event) =>
                       update(index, { action: event.target.value as RebaseStep['action'] })
                     }
-                    aria-label={`Aksi untuk ${shortOid(step.oid)}`}
+                    aria-label={shortOid(step.oid)}
                     className="border border-ink/25 bg-transparent px-1 py-0.5 font-mono text-[11px]"
                   >
                     {ACTIONS.map((action) => (
@@ -153,7 +155,7 @@ export function TodoPanel({
                   <button
                     type="button"
                     onClick={() => move(index, -1)}
-                    aria-label="Naikkan"
+                    aria-label="↑"
                     className="border border-ink/25 px-1.5 text-[11px]"
                   >
                     ↑
@@ -161,19 +163,19 @@ export function TodoPanel({
                   <button
                     type="button"
                     onClick={() => move(index, 1)}
-                    aria-label="Turunkan"
+                    aria-label="↓"
                     className="border border-ink/25 px-1.5 text-[11px]"
                   >
                     ↓
                   </button>
                 </div>
-                <p className="mt-1 text-[10px] text-faded">{EXPLAIN[step.action]}</p>
+                <p className="mt-1 text-[10px] text-faded">{explain[step.action]}</p>
                 {step.action === 'reword' || step.action === 'squash' ? (
                   <input
                     value={step.message ?? ''}
                     onChange={(event) => update(index, { message: event.target.value })}
-                    placeholder="pesan baru (kosong = pakai yang lama)"
-                    aria-label="Pesan baru"
+                    placeholder={t.newMessage}
+                    aria-label={t.newMessage}
                     className="mt-1 w-full border border-ink/25 bg-transparent px-2 py-0.5 font-mono text-[11px] outline-none placeholder:text-faded"
                   />
                 ) : null}
@@ -183,15 +185,14 @@ export function TodoPanel({
 
           <div className="flex items-center justify-between gap-2 border-t border-ink/20 px-3 py-2">
             <p className="text-[10px] leading-snug text-faded">
-              {steps.filter((step) => step.action !== 'drop').length} commit akan ditulis sebagai
-              objek baru.
+              {steps.filter((step) => step.action !== 'drop').length} {t.willBeRewritten}
             </p>
             <button
               type="button"
               onClick={run}
               className="border border-catalogue bg-catalogue px-3 py-1 font-display text-[10px] uppercase tracking-[0.14em] text-board"
             >
-              Jalankan
+              {t.run}
             </button>
           </div>
         </>

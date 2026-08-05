@@ -8,6 +8,7 @@
  *
  * Still pure — no base64, no URL, no DOM. Those live in lib/share.
  */
+import { GitError } from './errors'
 import { execute } from './execute'
 import { emptyRepository, type CommandResult, type Repository } from './state'
 
@@ -27,7 +28,9 @@ export function runLine(repo: Repository, line: string): CommandResult {
 
   if (tokens[0] === WRITE) {
     const path = tokens[1]
-    if (!path) throw new Error('write butuh path')
+    if (!path) {
+      throw new GitError('bad-args', { en: 'write needs a path', id: 'write butuh path' })
+    }
     const content = tokens.slice(2).join(' ')
     return {
       repo: { ...repo, worktree: { ...repo.worktree, [path]: content.split('|') } },
@@ -35,7 +38,10 @@ export function runLine(repo: Repository, line: string): CommandResult {
         {
           type: 'message',
           tone: 'info',
-          text: `${path} ditulis di working tree. Ini bukan perintah git — belum ada objek yang dibuat sampai Anda \`add\` dan \`commit\`.`,
+          text: {
+            en: `${path} written to the working tree. This is not a git command — no object exists until you \`add\` and \`commit\`.`,
+            id: `${path} ditulis di working tree. Ini bukan perintah git — belum ada objek yang dibuat sampai Anda \`add\` dan \`commit\`.`,
+          },
         },
       ],
     }

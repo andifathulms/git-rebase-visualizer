@@ -63,14 +63,17 @@ export function merge(
   options: { revision: string; noFastForward?: boolean; message?: string },
 ): CommandResult {
   if (repo.pending) {
-    throw new GitError(
-      'pending',
-      `masih ada ${repo.pending.type} yang belum selesai — selesaikan dengan --continue atau batalkan dengan --abort`,
-    )
+    throw new GitError('pending', {
+      en: `a ${repo.pending.type} is still in progress — finish it with --continue or call it off with --abort`,
+      id: `masih ada ${repo.pending.type} yang belum selesai — selesaikan dengan --continue atau batalkan dengan --abort`,
+    })
   }
 
   const headOid = resolveHead(repo.refs, repo.head)
-  if (!headOid) throw new GitError('unborn', 'belum ada commit di branch ini')
+  if (!headOid) throw new GitError('unborn', {
+      en: 'there are no commits on this branch yet',
+      id: 'belum ada commit di branch ini',
+    })
 
   const theirs = revParseCommit(repo, options.revision)
   const base = mergeBase(repo.store, headOid, theirs)
@@ -78,7 +81,16 @@ export function merge(
   if (base === theirs) {
     return {
       repo,
-      events: [{ type: 'message', tone: 'info', text: 'Sudah mutakhir — tidak ada objek baru.' }],
+      events: [
+        {
+          type: 'message',
+          tone: 'info',
+          text: {
+            en: 'Already up to date — no new object.',
+            id: 'Sudah mutakhir — tidak ada objek baru.',
+          },
+        },
+      ],
     }
   }
 
@@ -102,7 +114,10 @@ export function merge(
         {
           type: 'message',
           tone: 'info',
-          text: `Fast-forward ke ${theirs.slice(0, 7)}. Tidak ada commit baru dibuat — kartu branch hanya bergeser.`,
+          text: {
+            en: `Fast-forward to ${theirs.slice(0, 7)}. No commit was created — the branch card simply slid along.`,
+            id: `Fast-forward ke ${theirs.slice(0, 7)}. Tidak ada commit baru dibuat — kartu branch hanya bergeser.`,
+          },
         },
       ],
     }
@@ -134,7 +149,10 @@ export function merge(
         {
           type: 'message',
           tone: 'warn',
-          text: `Konflik pada ${merged.conflicts.join(', ')}. Belum ada ref yang bergerak dan belum ada commit dibuat. Selesaikan file, \`add\`, lalu \`merge --continue\` — atau \`merge --abort\`.`,
+          text: {
+            en: `Conflict in ${merged.conflicts.join(', ')}. No ref has moved and no commit has been written. Resolve the files, \`add\` them, then \`merge --continue\` — or \`merge --abort\`.`,
+            id: `Konflik pada ${merged.conflicts.join(', ')}. Belum ada ref yang bergerak dan belum ada commit dibuat. Selesaikan file, \`add\`, lalu \`merge --continue\` — atau \`merge --abort\`.`,
+          },
         },
       ],
     }
@@ -155,7 +173,10 @@ export function merge(
         type: 'message',
         tone: 'info',
         // The point of the comparison view, stated where it happens.
-        text: `Merge commit ${result.oid.slice(0, 7)} dibuat dengan dua parent. Riwayat lama tetap utuh — tidak ada commit yang ditulis ulang.`,
+        text: {
+          en: `Merge commit ${result.oid.slice(0, 7)} created with two parents. Both histories are intact — nothing was rewritten.`,
+          id: `Merge commit ${result.oid.slice(0, 7)} dibuat dengan dua parent. Riwayat lama tetap utuh — tidak ada commit yang ditulis ulang.`,
+        },
       },
     ],
   }
@@ -164,7 +185,10 @@ export function merge(
 export function mergeContinue(repo: Repository): CommandResult {
   const pending = repo.pending
   if (!pending || pending.type !== 'merge') {
-    throw new GitError('no-merge', 'tidak ada merge yang sedang berjalan')
+    throw new GitError('no-merge', {
+      en: 'there is no merge in progress',
+      id: 'tidak ada merge yang sedang berjalan',
+    })
   }
 
   const unresolved = pending.conflicts.filter((path) => {
@@ -172,14 +196,17 @@ export function mergeContinue(repo: Repository): CommandResult {
     return staged === undefined ? false : hasConflictMarkers(staged)
   })
   if (unresolved.length > 0) {
-    throw new GitError(
-      'unresolved',
-      `masih ada penanda konflik di ${unresolved.join(', ')} — perbaiki lalu \`add\` file-nya`,
-    )
+    throw new GitError('unresolved', {
+      en: `conflict markers are still present in ${unresolved.join(', ')} — fix them, then \`add\` the files`,
+      id: `masih ada penanda konflik di ${unresolved.join(', ')} — perbaiki lalu \`add\` file-nya`,
+    })
   }
 
   const headOid = resolveHead(repo.refs, repo.head)
-  if (!headOid) throw new GitError('unborn', 'belum ada commit di branch ini')
+  if (!headOid) throw new GitError('unborn', {
+      en: 'there are no commits on this branch yet',
+      id: 'belum ada commit di branch ini',
+    })
 
   const written = writeTree(repo.store, repo.index)
   const result = commitOnto(
@@ -195,7 +222,10 @@ export function mergeContinue(repo: Repository): CommandResult {
       {
         type: 'message',
         tone: 'info',
-        text: `Merge selesai sebagai ${result.oid.slice(0, 7)}. Resolusi Anda ikut masuk ke tree, jadi hash-nya mencerminkan keputusan itu.`,
+        text: {
+          en: `Merge completed as ${result.oid.slice(0, 7)}. Your resolution went into the tree, so the hash reflects that decision.`,
+          id: `Merge selesai sebagai ${result.oid.slice(0, 7)}. Resolusi Anda ikut masuk ke tree, jadi hash-nya mencerminkan keputusan itu.`,
+        },
       },
     ],
   }
@@ -204,7 +234,10 @@ export function mergeContinue(repo: Repository): CommandResult {
 export function mergeAbort(repo: Repository): CommandResult {
   const pending = repo.pending
   if (!pending || pending.type !== 'merge') {
-    throw new GitError('no-merge', 'tidak ada merge yang sedang berjalan')
+    throw new GitError('no-merge', {
+      en: 'there is no merge in progress',
+      id: 'tidak ada merge yang sedang berjalan',
+    })
   }
 
   const headOid = resolveHead(repo.refs, repo.head)
@@ -217,7 +250,10 @@ export function mergeAbort(repo: Repository): CommandResult {
         type: 'message',
         tone: 'info',
         // Nothing to undo in the store: the merge never wrote an object.
-        text: 'Merge dibatalkan. Tidak ada objek yang perlu dihapus — merge yang berhenti di konflik memang belum menulis apa pun.',
+        text: {
+          en: 'Merge aborted. There is nothing to remove — a merge that stopped at a conflict had not written anything yet.',
+          id: 'Merge dibatalkan. Tidak ada objek yang perlu dihapus — merge yang berhenti di konflik memang belum menulis apa pun.',
+        },
       },
     ],
   }

@@ -63,17 +63,17 @@ describe('push', () => {
     repo = step(repo, (r) => reset(r, { revision: 'HEAD~1', mode: 'hard' }))
     repo = commitFile(repo, 'a.txt', ['A', 'B lain'], 'B lain')
 
-    expect(() => push(repo, {})).toThrow(/push ditolak/)
+    expect(() => push(repo, {})).toThrow(/push rejected/)
     expect(() => push(repo, {})).toThrow(published_B.slice(0, 7))
   })
 
   it('refuses to push from a detached HEAD rather than guessing a branch', () => {
     const repo = step(published(), (r) => checkout(r, { target: 'HEAD~1', detach: true }))
-    expect(() => push(repo, {})).toThrow(/detached/)
+    expect(() => push(repo, {})).toThrow(/HEAD is detached/)
   })
 
   it('names an unknown remote instead of inventing one', () => {
-    expect(() => push(published(), { remote: 'upstream' })).toThrow(/tidak ada/)
+    expect(() => push(published(), { remote: 'upstream' })).toThrow(/does not exist/)
   })
 })
 
@@ -106,7 +106,7 @@ describe('force-push — what the collaborator loses', () => {
       (event) => event.type === 'message' && event.tone === 'destructive',
     )
     expect(destructive).toBeDefined()
-    expect(destructive && destructive.type === 'message' && destructive.text).toContain(
+    expect(destructive && destructive.type === 'message' && destructive.text.en).toContain(
       abandoned.slice(0, 7),
     )
   })
@@ -166,7 +166,7 @@ describe('fetch', () => {
     const repo = step(published(), (r) => fetch(r))
     const again = fetch(repo)
     expect(
-      again.events.some((event) => event.type === 'message' && /Tidak ada yang baru/.test(event.text)),
+      again.events.some((event) => event.type === 'message' && /Nothing new/.test(event.text.en)),
     ).toBe(true)
   })
 })
@@ -242,6 +242,6 @@ describe('dispatcher', () => {
     repo = step(repo, (r) => reset(r, { revision: 'HEAD~1', mode: 'hard' }))
     repo = commitFile(repo, 'a.txt', ['A', 'lain'], 'lain')
     expect(() => execute(repo, 'push origin main --force')).not.toThrow()
-    expect(() => execute(repo, 'push origin main')).toThrow(/push ditolak/)
+    expect(() => execute(repo, 'push origin main')).toThrow(/push rejected/)
   })
 })

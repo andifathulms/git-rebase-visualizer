@@ -21,10 +21,16 @@ export function filePaths(files: FileMap): string[] {
 
 export function validatePath(path: string): void {
   if (path === '' || path.startsWith('/') || path.endsWith('/') || path.includes('//')) {
-    throw new GitError('bad-path', `path tidak sah: ${JSON.stringify(path)}`)
+    throw new GitError('bad-path', {
+      en: `invalid path: ${JSON.stringify(path)}`,
+      id: `path tidak sah: ${JSON.stringify(path)}`,
+    })
   }
   if (path.split('/').some((segment) => segment === '.' || segment === '..')) {
-    throw new GitError('bad-path', `path tidak sah: ${path}`)
+    throw new GitError('bad-path', {
+      en: `invalid path: ${path}`,
+      id: `path tidak sah: ${path}`,
+    })
   }
 }
 

@@ -25,20 +25,26 @@ function treeOf(repo: Repository, commitOid: Oid): FileMap {
 
 export function revert(repo: Repository, revision: string): CommandResult {
   if (repo.pending) {
-    throw new GitError('pending', `masih ada ${repo.pending.type} yang belum selesai`)
+    throw new GitError('pending', {
+      en: `a ${repo.pending.type} is still in progress`,
+      id: `masih ada ${repo.pending.type} yang belum selesai`,
+    })
   }
 
   const head = resolveHead(repo.refs, repo.head)
-  if (!head) throw new GitError('unborn', 'belum ada commit di branch ini')
+  if (!head) throw new GitError('unborn', {
+      en: 'there are no commits on this branch yet',
+      id: 'belum ada commit di branch ini',
+    })
 
   const target = revParseCommit(repo, revision)
   const commit = requireCommit(repo.store, target)
 
   if (commit.parents.length > 1) {
-    throw new GitError(
-      'unsupported',
-      `${target.slice(0, 7)} adalah merge commit — revert merge butuh -m untuk memilih mainline, dan itu di luar cakupan Cangkok (PRD §4).`,
-    )
+    throw new GitError('unsupported', {
+      en: `${target.slice(0, 7)} is a merge commit — reverting one needs -m to pick a mainline, which is out of scope for Cangkok (PRD §4).`,
+      id: `${target.slice(0, 7)} adalah merge commit — revert merge butuh -m untuk memilih mainline, dan itu di luar cakupan Cangkok (PRD §4).`,
+    })
   }
 
   const parent = commit.parents[0]
@@ -50,10 +56,10 @@ export function revert(repo: Repository, revision: string): CommandResult {
   )
 
   if (undone.conflicts.length > 0) {
-    throw new GitError(
-      'conflict',
-      `revert ${target.slice(0, 7)} berkonflik pada ${undone.conflicts.join(', ')} — commit ini sudah diubah lagi sesudahnya`,
-    )
+    throw new GitError('conflict', {
+      en: `reverting ${target.slice(0, 7)} conflicts in ${undone.conflicts.join(', ')} — something changed those lines again afterwards`,
+      id: `revert ${target.slice(0, 7)} berkonflik pada ${undone.conflicts.join(', ')} — commit ini sudah diubah lagi sesudahnya`,
+    })
   }
 
   const subject = commit.message.split('\n')[0]
@@ -76,7 +82,10 @@ export function revert(repo: Repository, revision: string): CommandResult {
       {
         type: 'message',
         tone: 'info',
-        text: `${target.slice(0, 7)} dibatalkan oleh commit baru ${result.oid.slice(0, 7)}. Commit aslinya tetap di riwayat — tidak ada yang ditulis ulang, jadi aman untuk branch yang sudah dipublikasikan.`,
+        text: {
+          en: `${target.slice(0, 7)} undone by a new commit ${result.oid.slice(0, 7)}. The original stays in the history — nothing was rewritten, so this is safe on a branch other people already have.`,
+          id: `${target.slice(0, 7)} dibatalkan oleh commit baru ${result.oid.slice(0, 7)}. Commit aslinya tetap di riwayat — tidak ada yang ditulis ulang, jadi aman untuk branch yang sudah dipublikasikan.`,
+        },
       },
     ],
   }
