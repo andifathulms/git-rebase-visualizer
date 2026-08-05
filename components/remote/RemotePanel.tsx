@@ -37,8 +37,8 @@ export function RemotePanel({
   const branch = repo.head.type === 'attached' ? shortRef(repo.head.ref) : null
 
   return (
-    <section className="border border-ink/20">
-      <header className="flex flex-wrap items-center justify-between gap-2 border-b border-ink/20 px-3 py-2">
+    <section className="panel">
+      <header className="panel-head">
         <span className="label">
           {repo.remote.name} — {t.remotePanel}
         </span>
@@ -46,14 +46,14 @@ export function RemotePanel({
           <button
             type="button"
             onClick={() => onRun(branch ? `push origin ${branch}` : 'push')}
-            className="border border-catalogue px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.14em] text-catalogue"
+            className="btn-secondary px-2.5 py-1"
           >
             {t.push}
           </button>
           <button
             type="button"
             onClick={() => onRun('fetch')}
-            className="border border-catalogue px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.14em] text-catalogue"
+            className="btn-secondary px-2.5 py-1"
           >
             {t.fetch}
           </button>
@@ -61,7 +61,7 @@ export function RemotePanel({
       </header>
 
       {view.refs.length === 0 ? (
-        <p className="px-3 py-2 text-[11px] leading-relaxed text-ink/70">
+        <p className="px-3 py-2.5 text-[12.5px] leading-relaxed text-muted">
           {t.remoteEmpty}
         </p>
       ) : (
@@ -70,39 +70,39 @@ export function RemotePanel({
             {view.refs.map(({ ref, oid }) => {
               const tracking = repo.refs[`refs/remotes/${repo.remote.name}/${shortRef(ref)}`]
               return (
-                <li key={ref} className="flex items-baseline justify-between gap-2 px-3 py-1.5">
-                  <span className="font-display text-[10px] uppercase tracking-[0.14em] text-catalogue">
+                <li key={ref} className="flex items-baseline justify-between gap-2 px-3 py-2">
+                  <span className="font-display text-[11px] uppercase tracking-[0.12em] text-catalogue">
                     {repo.remote.name}/{shortRef(ref)}
                   </span>
-                  <span className="font-mono text-[11px] text-ink">{shortOid(oid)}</span>
+                  <span className="font-mono text-[12.5px] text-ink">{shortOid(oid)}</span>
                   {tracking !== oid ? (
-                    <span className="font-mono text-[10px] text-stamp">{t.notFetched}</span>
+                    <span className="font-mono text-[11.5px] text-stamp">{t.notFetched}</span>
                   ) : null}
                 </li>
               )
             })}
           </ul>
 
-          <p className="border-t border-ink/20 px-3 py-1.5 text-[11px] text-ink/70">
+          <p className="border-t border-ink/10 px-3 py-2 text-[12.5px] text-muted">
             {t.freshClone} <span className="font-mono">{view.commits.length}</span> commit.
           </p>
         </>
       )}
 
       {localOnly.length > 0 && view.refs.length > 0 ? (
-        <div className="border-t border-ink/20 px-3 py-2">
+        <div className="border-t border-ink/10 px-3 py-2.5">
           <p className="label mb-1">
             {t.notOnRemote} {repo.remote.name} ({localOnly.length})
           </p>
-          <p className="text-[11px] leading-relaxed text-ink/70">{t.notOnRemoteHelp}</p>
-          <p className="mt-1 font-mono text-[11px] text-faded">
+          <p className="text-[12.5px] leading-relaxed text-muted">{t.notOnRemoteHelp}</p>
+          <p className="mt-1.5 font-mono text-[12px] text-muted">
             {localOnly.map((oid) => shortOid(oid)).join(' ')}
           </p>
         </div>
       ) : null}
 
       {listRefs(repo.refs, 'remote').length === 0 && view.refs.length > 0 ? (
-        <p className="border-t border-ink/20 px-3 py-1.5 text-[11px] text-ink/70">
+        <p className="border-t border-ink/10 px-3 py-2 text-[12.5px] text-muted">
           <code>fetch</code> — {repo.remote.name}/…
         </p>
       ) : null}

@@ -27,25 +27,25 @@ export function Register({
 }) {
   const t = UI[locale]
   return (
-    <section className="flex min-h-0 flex-col border border-ink/20">
-      <header className="border-b border-ink/20 px-3 py-2">
+    <section className="panel">
+      <header className="panel-head">
         <span className="label">{t.register}</span>
       </header>
 
       {orphans.length > 0 ? (
-        <div className="border-b border-ink/20 bg-board px-3 py-2">
+        <div className="border-b border-ink/10 bg-shelf/40 px-3 py-2.5">
           <p className="label mb-1">
             {t.boxesWithoutCards} ({orphans.length})
           </p>
-          <p className="mb-2 text-[11px] leading-relaxed text-ink/70">{t.orphanHelp}</p>
+          <p className="mb-2 text-[12.5px] leading-relaxed text-muted">{t.orphanHelp}</p>
           <ul className="space-y-1">
             {orphans.map((oid) => (
               <li key={oid} className="flex items-center justify-between gap-2">
-                <span className="font-mono text-xs text-faded">{shortOid(oid)}</span>
+                <span className="font-mono text-[12.5px] text-muted">{shortOid(oid)}</span>
                 <button
                   type="button"
                   onClick={() => onRecover(oid)}
-                  className="border border-catalogue px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.14em] text-catalogue hover:bg-catalogue hover:text-board"
+                  className="btn-secondary px-2 py-1"
                 >
                   {t.recover}
                 </button>
@@ -55,25 +55,25 @@ export function Register({
         </div>
       ) : null}
 
-      <ol className="min-h-0 flex-1 overflow-y-auto divide-y divide-ink/10">
+      <ol className="min-h-0 max-h-[26rem] flex-1 divide-y divide-ink/10 overflow-y-auto">
         {entries.length === 0 ? (
-          <li className="px-3 py-2 font-mono text-xs text-faded">{t.noMovements}</li>
+          <li className="px-3 py-2.5 font-mono text-[12.5px] text-muted">{t.noMovements}</li>
         ) : (
           entries.map((entry, index) => (
             <li key={`${entry.ref}-${index}-${entry.timestamp}`} className="px-3 py-2">
               <div className="flex items-baseline justify-between gap-2">
-                <span className="font-mono text-xs text-ink">
+                <span className="font-mono text-[13px] text-ink">
                   {entry.after ? shortOid(entry.after) : '—'}
                 </span>
-                <span className="font-display text-[10px] uppercase tracking-[0.14em] text-catalogue">
+                <span className="font-display text-[11px] uppercase tracking-[0.12em] text-catalogue">
                   {entry.ref === 'HEAD' ? 'HEAD' : shortRef(entry.ref)}
                 </span>
               </div>
-              <p className="mt-0.5 text-[11px] leading-snug text-ink/70">
+              <p className="mt-1 text-[12.5px] leading-snug text-muted">
                 <span className="font-mono">{entry.operation}</span> — {entry.message}
               </p>
               {entry.before && entry.before !== entry.after ? (
-                <p className="mt-0.5 font-mono text-[10px] text-faded">
+                <p className="mt-0.5 font-mono text-[11.5px] text-muted">
                   {locale === 'en' ? 'from' : 'dari'} {shortOid(entry.before)}
                 </p>
               ) : null}

@@ -101,8 +101,8 @@ export function TodoPanel({
   }
 
   return (
-    <section className="border border-ink/20">
-      <header className="flex flex-wrap items-center justify-between gap-2 border-b border-ink/20 px-3 py-2">
+    <section className="panel">
+      <header className="panel-head">
         <span className="label">{t.interactiveRebase}</span>
         <div className="flex items-center gap-2">
           <input
@@ -110,29 +110,29 @@ export function TodoPanel({
             onChange={(event) => setUpstream(event.target.value)}
             aria-label={t.upstream}
             spellCheck={false}
-            className="w-24 border border-ink/25 bg-transparent px-2 py-0.5 font-mono text-[11px] outline-none"
+            className="field w-24"
           />
           <button
             type="button"
             onClick={load}
-            className="border border-catalogue px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.14em] text-catalogue"
+            className="btn-secondary px-2.5 py-1"
           >
             {t.buildTodo}
           </button>
         </div>
       </header>
 
-      {error ? <p className="px-3 py-2 font-mono text-[11px] text-stamp">{error}</p> : null}
+      {error ? <p className="px-3 py-2 font-mono text-[12.5px] text-stamp">{error}</p> : null}
 
       {steps === null ? (
-        <p className="px-3 py-2 text-[11px] leading-relaxed text-ink/70">
+        <p className="px-3 py-2.5 text-[12.5px] leading-relaxed text-muted">
           {t.todoIntro}
         </p>
       ) : (
         <>
           <ol className="divide-y divide-ink/10">
             {steps.map((step, index) => (
-              <li key={`${step.oid}-${index}`} className="px-3 py-2">
+              <li key={`${step.oid}-${index}`} className="px-3 py-2.5">
                 <div className="flex flex-wrap items-center gap-2">
                   <select
                     value={step.action}
@@ -140,7 +140,7 @@ export function TodoPanel({
                       update(index, { action: event.target.value as RebaseStep['action'] })
                     }
                     aria-label={shortOid(step.oid)}
-                    className="border border-ink/25 bg-transparent px-1 py-0.5 font-mono text-[11px]"
+                    className="field px-1.5 py-1"
                   >
                     {ACTIONS.map((action) => (
                       <option key={action} value={action}>
@@ -148,15 +148,15 @@ export function TodoPanel({
                       </option>
                     ))}
                   </select>
-                  <span className="font-mono text-[11px] text-faded">{shortOid(step.oid)}</span>
-                  <span className="flex-1 truncate text-[12px] text-ink/80">
+                  <span className="font-mono text-[12px] text-muted">{shortOid(step.oid)}</span>
+                  <span className="flex-1 truncate text-[13px] text-ink">
                     {subject(step.oid)}
                   </span>
                   <button
                     type="button"
                     onClick={() => move(index, -1)}
                     aria-label="↑"
-                    className="border border-ink/25 px-1.5 text-[11px]"
+                    className="btn-icon"
                   >
                     ↑
                   </button>
@@ -164,33 +164,33 @@ export function TodoPanel({
                     type="button"
                     onClick={() => move(index, 1)}
                     aria-label="↓"
-                    className="border border-ink/25 px-1.5 text-[11px]"
+                    className="btn-icon"
                   >
                     ↓
                   </button>
                 </div>
-                <p className="mt-1 text-[10px] text-faded">{explain[step.action]}</p>
+                <p className="mt-1.5 text-[11.5px] text-muted">{explain[step.action]}</p>
                 {step.action === 'reword' || step.action === 'squash' ? (
                   <input
                     value={step.message ?? ''}
                     onChange={(event) => update(index, { message: event.target.value })}
                     placeholder={t.newMessage}
                     aria-label={t.newMessage}
-                    className="mt-1 w-full border border-ink/25 bg-transparent px-2 py-0.5 font-mono text-[11px] outline-none placeholder:text-faded"
+                    className="field mt-1.5 w-full"
                   />
                 ) : null}
               </li>
             ))}
           </ol>
 
-          <div className="flex items-center justify-between gap-2 border-t border-ink/20 px-3 py-2">
-            <p className="text-[10px] leading-snug text-faded">
+          <div className="flex items-center justify-between gap-2 border-t border-ink/10 px-3 py-2.5">
+            <p className="text-[11.5px] leading-snug text-muted">
               {steps.filter((step) => step.action !== 'drop').length} {t.willBeRewritten}
             </p>
             <button
               type="button"
               onClick={run}
-              className="border border-catalogue bg-catalogue px-3 py-1 font-display text-[10px] uppercase tracking-[0.14em] text-board"
+              className="btn-primary px-3 py-1.5"
             >
               {t.run}
             </button>

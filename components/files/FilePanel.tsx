@@ -42,20 +42,22 @@ export function FilePanel({
   }
 
   return (
-    <section className="flex min-h-0 flex-col border border-ink/20">
-      <header className="flex items-baseline justify-between border-b border-ink/20 px-3 py-2">
+    <section className="panel">
+      <header className="panel-head">
         <span className="label">{t.worktree}</span>
-        <span className="text-[10px] text-faded">{t.notAGitCommand}</span>
+        <span className="text-[11px] text-muted">{t.notAGitCommand}</span>
       </header>
 
-      <div className="flex flex-wrap gap-1 border-b border-ink/20 px-3 py-2">
+      <div className="flex flex-wrap gap-1.5 border-b border-ink/10 px-3 py-2">
         {paths.map((path) => (
           <button
             key={path}
             type="button"
             onClick={() => setOpen(path)}
-            className={`border px-2 py-0.5 font-mono text-[11px] ${
-              path === active ? 'border-ink bg-kraft text-ink' : 'border-ink/25 text-ink/70'
+            className={`border px-2 py-1 font-mono text-[12px] transition-colors ${
+              path === active
+                ? 'border-ink bg-kraft text-ink'
+                : 'border-ink/25 text-muted hover:border-ink/50 hover:text-ink'
             } ${conflicts.includes(path) ? 'text-stamp' : ''}`}
           >
             {path}
@@ -77,7 +79,7 @@ export function FilePanel({
             onChange={(event) => setDraftPath(event.target.value)}
             placeholder={t.newFile}
             aria-label={t.newFile}
-            className="w-28 border border-dashed border-ink/30 bg-transparent px-2 py-0.5 font-mono text-[11px] outline-none placeholder:text-faded"
+            className="w-28 border border-dashed border-ink/30 bg-transparent px-2 py-1 font-mono text-[12px] outline-none placeholder:text-muted/70"
           />
         </form>
       </div>
@@ -85,7 +87,7 @@ export function FilePanel({
       {active ? (
         <>
           {conflicts.includes(active) ? (
-            <p className="border-b border-stamp/40 bg-stamp/5 px-3 py-1.5 text-[11px] text-stamp">
+            <p className="border-b border-stamp/40 bg-stamp-tint px-3 py-2 text-[12.5px] leading-relaxed text-stamp">
               {t.conflictHelp} <code>add {active}</code>.
             </p>
           ) : null}
@@ -95,16 +97,16 @@ export function FilePanel({
             onBlur={(event) => onWrite(active, event.target.value.split('\n'))}
             spellCheck={false}
             aria-label={active}
-            className={`min-h-[10rem] flex-1 resize-none bg-transparent px-3 py-2 font-mono text-xs leading-relaxed outline-none ${
+            className={`min-h-[11rem] flex-1 resize-none bg-transparent px-3 py-2.5 font-mono text-[12.5px] leading-relaxed outline-none ${
               hasConflictMarkers(worktree[active] ?? []) ? 'text-stamp' : 'text-ink'
             }`}
           />
-          <p className="border-t border-ink/20 px-3 py-1 text-[10px] text-faded">
+          <p className="border-t border-ink/10 px-3 py-1.5 text-[11.5px] text-muted">
             {t.savesOnBlur} <code>add</code>.
           </p>
         </>
       ) : (
-        <p className="px-3 py-3 font-mono text-xs text-faded">{t.noFiles}</p>
+        <p className="px-3 py-3 font-mono text-[12.5px] text-muted">{t.noFiles}</p>
       )}
     </section>
   )

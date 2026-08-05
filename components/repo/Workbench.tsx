@@ -4,14 +4,24 @@
  * The repository page. Holds the session, runs lines through the engine, and
  * renders. It computes nothing about git itself — every derived value comes
  * from lib/git or lib/layout. CLAUDE.md invariant 13.
+ *
+ * The four side panels used to stack in a 18rem rail, which meant the reflog —
+ * the panel that carries the recovery lesson — was usually below the fold and
+ * usually missed. They are tabs now, all four kept mounted so a half-built todo
+ * list survives a glance at the peer, and the two facts worth interrupting for
+ * (an orphan appeared; HEAD moved) are promoted out of the rail into the status
+ * strip and a banner.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { CommandBar, type OutputLine } from '@/components/command/CommandBar'
+import { CommandBar, type OutputLine, type Prefill } from '@/components/command/CommandBar'
 import { FilePanel } from '@/components/files/FilePanel'
 import { CommitGraph, type Graft } from '@/components/graph/CommitGraph'
+import { Legend } from '@/components/graph/Legend'
 import { Register } from '@/components/reflog/Register'
 import { TodoPanel } from '@/components/rebase/TodoPanel'
 import { RemotePanel } from '@/components/remote/RemotePanel'
+import { CommitInspector } from '@/components/repo/CommitInspector'
+import { SiteHeader } from '@/components/site/SiteHeader'
 import { GitError } from '@/lib/git/errors'
 import type { Commit } from '@/lib/git/objects'
 import { allCommits } from '@/lib/git/query'
@@ -29,6 +39,11 @@ import type { Oid } from '@/lib/hash'
 
 const START = ['write notes.txt "first line"', 'add notes.txt', 'commit -m "first"']
 
+/** Remembers only that the orientation note was read. No session state. */
+const ORIENTED_KEY = 'cangkok:oriented'
+
+type Rail = 'files' | 'remote' | 'rebase' | 'register'
+
 export function Workbench({
   locale,
   initialScript,
@@ -43,6 +58,9 @@ export function Workbench({
   const [selected, setSelected] = useState<Oid | null>(null)
   const [copied, setCopied] = useState(false)
   const [graft, setGraft] = useState<Graft | null>(null)
+  const [rail, setRail] = useState<Rail>('files')
+  const [prefill, setPrefill] = useState<Prefill | null>(null)
+  const [oriented, setOriented] = useState(true)
   const nextId = useRef(0)
   const runCount = useRef(0)
 
@@ -85,6 +103,7 @@ export function Workbench({
           if (event.type === 'message') say(event.tone, event.text[locale])
           if (event.type === 'conflict') {
             say('warn', `${locale === 'en' ? 'Conflict' : 'Konflik'}: ${event.paths.join(', ')}`)
+            setRail('files')
           }
           if (event.type === 'commits-orphaned') {
             say(
@@ -116,6 +135,9 @@ export function Workbench({
 
     const shared = decodeScript(window.location.hash)
     setScript([...(initialScript ?? chosen?.script ?? shared ?? START)])
+
+    // Read after mount, so the server and the first client render agree.
+    setOriented(window.localStorage?.getItem(ORIENTED_KEY) === '1')
   }, [initialScript])
 
   const live = useMemo(() => reachable(repo), [repo])
@@ -138,6 +160,14 @@ export function Workbench({
   const headOid = resolveHead(repo.refs, repo.head) ?? null
   const headRef = repo.head.type === 'attached' ? repo.head.ref : null
 
+  // A selection only survives while its object is still on the graph.
+  const inspected = selected !== null && commitMap.has(selected) ? selected : null
+
+  function dismissOrientation() {
+    setOriented(true)
+    window.localStorage?.setItem(ORIENTED_KEY, '1')
+  }
+
   function share() {
     const url = `${window.location.origin}${window.location.pathname}${encodeScript(script)}`
     window.history.replaceState(null, '', encodeScript(script))
@@ -146,103 +176,262 @@ export function Workbench({
     window.setTimeout(() => setCopied(false), 2000)
   }
 
+  const tabs: readonly { readonly key: Rail; readonly label: string; readonly badge?: number }[] = [
+    { key: 'files', label: t.tabFiles, badge: repo.pending?.conflicts.length },
+    { key: 'remote', label: t.tabRemote },
+    { key: 'rebase', label: t.tabRebase },
+    { key: 'register', label: t.tabRegister, badge: orphans.length },
+  ]
+
   return (
-    <div className="mx-auto flex min-h-screen max-w-[100rem] flex-col gap-4 px-4 py-4">
-      <header className="flex flex-wrap items-baseline justify-between gap-3 border-b border-ink/20 pb-3">
-        <div className="flex items-baseline gap-3">
-          <span className="font-display text-lg uppercase tracking-[0.16em]">Cangkok</span>
-          <span className="font-mono text-xs text-faded">
-            {count(repo.store)} {t.objects} · {orphans.length} {t.orphans} ·{' '}
-            {headRef ? `HEAD → ${shortRef(headRef)}` : t.detached}
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader
+        locale={locale}
+        path="/repo"
+        actions={
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              title={t.resetHelp}
+              onClick={() => {
+                setScript([])
+                setOutput([])
+                setHighlighted(new Set())
+                setSelected(null)
+                setGraft(null)
+              }}
+              className="btn-quiet px-2.5 py-1"
+            >
+              {t.reset}
+            </button>
+            <button type="button" title={t.shareHelp} onClick={share} className="btn-secondary px-2.5 py-1">
+              {copied ? t.shared : t.share}
+            </button>
+          </div>
+        }
+      />
+
+      <main
+        id="main"
+        className="mx-auto flex w-full max-w-[100rem] flex-1 flex-col gap-4 px-4 py-4 sm:px-6"
+      >
+        {/* The three numbers that describe the repository, each explained on
+            hover — the counts meant nothing to a first-time reader. */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="chip" title={t.objectsHelp}>
+            <span className="text-ink">{count(repo.store)}</span> {t.objects}
+          </span>
+          <span className="chip" title={t.orphansHelp}>
+            <span className="text-ink">{orphans.length}</span> {t.orphans}
+          </span>
+          <span className="chip" title={t.headHelp}>
+            {headRef ? (
+              <>
+                HEAD <span className="text-catalogue">→</span>{' '}
+                <span className="text-ink">{shortRef(headRef)}</span>
+              </>
+            ) : (
+              t.detached
+            )}
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setScript([])
-              setOutput([])
-              setHighlighted(new Set())
-            }}
-            className="border border-ink/30 px-2 py-1 font-display text-[10px] uppercase tracking-[0.14em]"
-          >
-            {t.clear}
-          </button>
-          <button
-            type="button"
-            onClick={share}
-            className="border border-catalogue px-2 py-1 font-display text-[10px] uppercase tracking-[0.14em] text-catalogue"
-          >
-            {copied ? t.shared : t.share}
-          </button>
-        </div>
-      </header>
 
-      {scenario ? (
-        <aside className="border-l-2 border-catalogue bg-board px-4 py-3">
-          <p className="label">
-            {t.scenarioLabel} — {scenario.title[locale]}
-          </p>
-          <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-ink/80">
-            {scenario.lesson[locale]}
-          </p>
-          <p className="mt-2 font-mono text-xs text-ink/70">
-            {t.thenTry} <span className="text-stamp">{scenario.next.command}</span> —{' '}
-            {scenario.next.why[locale]}
-          </p>
-        </aside>
-      ) : null}
+        {!oriented ? (
+          <aside className="panel border-l-2 border-l-catalogue">
+            <div className="panel-body flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="label">{t.orientationTitle}</p>
+                <p className="mt-1.5 max-w-prose text-[14px] leading-relaxed text-ink/85">
+                  {t.orientationBody}
+                </p>
+              </div>
+              <button type="button" onClick={dismissOrientation} className="btn-quiet px-3 py-1.5">
+                {t.orientationDismiss}
+              </button>
+            </div>
+          </aside>
+        ) : null}
 
-      <div className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
-        <div className="flex min-w-0 flex-col gap-4">
-          <div className="min-h-[22rem] overflow-auto border border-ink/20 p-3">
-            <CommitGraph
-              layout={layout}
-              commits={commitMap}
-              refsAt={decorations}
-              headRef={headRef}
-              headOid={headOid}
-              highlighted={highlighted}
-              selected={selected}
+        {scenario ? (
+          <aside className="panel border-l-2 border-l-catalogue">
+            <div className="panel-body">
+              <p className="label">
+                {t.scenarioLabel} — {scenario.title[locale]}
+              </p>
+              <p className="mt-1.5 max-w-prose text-[14px] leading-relaxed text-ink/85">
+                {scenario.lesson[locale]}
+              </p>
+              <p className="mt-2 text-[13px] text-muted">
+                {t.thenTry}{' '}
+                <button
+                  type="button"
+                  // Offers the line; the user still presses enter. PRD §6.8.
+                  onClick={() =>
+                    setPrefill((current) => ({
+                      line: scenario.next.command,
+                      n: (current?.n ?? 0) + 1,
+                    }))
+                  }
+                  className="border border-stamp/40 bg-stamp-tint px-2 py-0.5 font-mono text-[12.5px] text-stamp"
+                >
+                  {scenario.next.command}
+                </button>{' '}
+                — {scenario.next.why[locale]}
+              </p>
+            </div>
+          </aside>
+        ) : null}
+
+        {orphans.length > 0 ? (
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 border-l-2 border-faded bg-paper px-4 py-2.5 text-[13px] text-muted">
+            <span>
+              <span className="font-mono text-ink">{orphans.length}</span> {t.orphanBanner}
+            </span>
+            <button
+              type="button"
+              onClick={() => setRail('register')}
+              className="text-catalogue underline decoration-catalogue/40 underline-offset-2 hover:decoration-catalogue"
+            >
+              {t.openRegister}
+            </button>
+          </p>
+        ) : null}
+
+        <div className="grid flex-1 grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
+          <div className="flex min-w-0 flex-col gap-4">
+            <section className="panel">
+              <header className="panel-head">
+                <span className="label">{t.graphTitle}</span>
+                <Legend locale={locale} />
+              </header>
+              <div className="min-h-[24rem] overflow-auto p-3">
+                <CommitGraph
+                  layout={layout}
+                  commits={commitMap}
+                  refsAt={decorations}
+                  headRef={headRef}
+                  headOid={headOid}
+                  highlighted={highlighted}
+                  selected={inspected}
+                  onSelect={setSelected}
+                  graft={graft}
+                  locale={locale}
+                />
+              </div>
+              <p className="border-t border-ink/10 px-3 py-1.5 text-[12px] text-muted">
+                {t.legendHint} {t.scrollHint}
+              </p>
+            </section>
+
+            <CommitInspector
+              repo={repo}
+              oid={inspected}
+              refs={inspected ? (decorations.get(inspected) ?? []) : []}
+              reachable={inspected ? live.has(inspected) : false}
               onSelect={setSelected}
-              graft={graft}
+              onClose={() => setSelected(null)}
+              locale={locale}
+            />
+
+            <CommandBar
+              output={output}
+              history={script}
+              onSubmit={submit}
+              prefill={prefill}
               locale={locale}
             />
           </div>
-          <CommandBar output={output} history={script} onSubmit={submit} locale={locale} />
+
+          {/* All four stay mounted: switching tabs must not throw away a
+              half-built todo list or a file being edited. */}
+          <div className="flex min-w-0 flex-col lg:sticky lg:top-[3.5rem]">
+            <div
+              role="tablist"
+              aria-label={t.graphTitle}
+              className="flex flex-wrap items-center gap-1 border-b border-ink/15"
+            >
+              {tabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  role="tab"
+                  id={`rail-tab-${tab.key}`}
+                  aria-selected={rail === tab.key}
+                  aria-controls={`rail-panel-${tab.key}`}
+                  onClick={() => setRail(tab.key)}
+                  className={`tab ${rail === tab.key ? 'tab-active' : ''}`}
+                >
+                  {tab.label}
+                  {tab.badge ? (
+                    <span className="border border-catalogue px-1 font-mono text-[10px] leading-4 text-catalogue">
+                      {tab.badge}
+                    </span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-3 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
+              <div
+                role="tabpanel"
+                id="rail-panel-files"
+                aria-labelledby="rail-tab-files"
+                hidden={rail !== 'files'}
+              >
+                <FilePanel
+                  worktree={repo.worktree}
+                  index={repo.index}
+                  conflicts={repo.pending?.conflicts ?? []}
+                  onWrite={(path, lines) => submit(writeLine(path, lines))}
+                  locale={locale}
+                />
+              </div>
+              <div
+                role="tabpanel"
+                id="rail-panel-remote"
+                aria-labelledby="rail-tab-remote"
+                hidden={rail !== 'remote'}
+              >
+                <RemotePanel repo={repo} onRun={submit} locale={locale} />
+              </div>
+              <div
+                role="tabpanel"
+                id="rail-panel-rebase"
+                aria-labelledby="rail-tab-rebase"
+                hidden={rail !== 'rebase'}
+              >
+                <TodoPanel repo={repo} onRun={submit} locale={locale} />
+              </div>
+              <div
+                role="tabpanel"
+                id="rail-panel-register"
+                aria-labelledby="rail-tab-register"
+                hidden={rail !== 'register'}
+              >
+                <Register
+                  entries={[...repo.reflog].reverse()}
+                  orphans={orphans}
+                  onRecover={(oid) => submit(`branch rescued-${oid.slice(0, 7)} ${oid}`)}
+                  locale={locale}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-4">
-          <FilePanel
-            worktree={repo.worktree}
-            index={repo.index}
-            conflicts={repo.pending?.conflicts ?? []}
-            onWrite={(path, lines) => submit(writeLine(path, lines))}
-            locale={locale}
-          />
-          <RemotePanel repo={repo} onRun={submit} locale={locale} />
-          <TodoPanel repo={repo} onRun={submit} locale={locale} />
-          <Register
-            entries={[...repo.reflog].reverse()}
-            orphans={orphans}
-            onRecover={(oid) => submit(`branch rescued-${oid.slice(0, 7)} ${oid}`)}
-            locale={locale}
-          />
-        </div>
-      </div>
-
-      <footer className="border-t border-ink/20 pt-3 text-[11px] leading-relaxed text-ink/60">
-        {t.honest}{' '}
-        <a
-          className="text-catalogue underline"
-          href="https://learngitbranching.js.org"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Learn Git Branching
-        </a>{' '}
-        — {t.prior}
-      </footer>
+        <footer className="mt-2 border-t border-ink/15 pt-3 text-[12px] leading-relaxed text-muted">
+          {t.honest}{' '}
+          <a
+            className="text-catalogue underline decoration-catalogue/40 underline-offset-2 hover:decoration-catalogue"
+            href="https://learngitbranching.js.org"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Learn Git Branching
+          </a>{' '}
+          — {t.prior}
+        </footer>
+      </main>
     </div>
   )
 }
