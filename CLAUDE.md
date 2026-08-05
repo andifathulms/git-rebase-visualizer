@@ -150,4 +150,20 @@ Learn Git Branching is linked prominently as the better tutorial — accurate, g
 
 ## Current state
 
-M0 — not yet scaffolded. Next: static export deploying to Pages, synchronous SHA-1 verified against published test vectors, and the DAG lane-layout spike. **No command work until the object store passes its append-only and content-addressing tests.**
+**M0–M6 landed. M7 (remotes, push/fetch, force-push) is the only milestone not started.**
+
+- Synchronous SHA-1 against the RFC 3174 vectors; blob and tree oids match real git exactly, verified against oids recorded from `git ls-tree`.
+- Append-only store, content addressing, refs/HEAD/reflog, virtual clock, `gitrevisions` parser with its fixture table.
+- Commands: `add`, `commit`, `branch`, `checkout`/`switch`, `merge`, `rebase` (including `-i` via `--todo=`), `cherry-pick`, `reset`, `revert`, `tag`, `log`, `status`, `reflog`, `gc`.
+- Real conflicts with git's own markers, and `--continue`/`--abort`/`--skip`.
+- Graph, command bar, reflog register with orphan recovery, working-tree editor, scenario library, comparison mode, interactive rebase panel.
+- Oracle fixtures recorded from real git across seven scenarios; determinism, layout snapshot, and scenario suites green.
+
+Notes for whoever picks this up:
+
+- **A session is a list of command lines, not a state snapshot.** The engine is deterministic, so replaying the lines rebuilds the repository byte-for-byte. That is what URL sharing encodes, and it is why a shared link can never disagree with what the commands actually do.
+- **`write <path> "a|b"` is the one non-git line**, deliberately spelled unlike a git command. Editing a file is not a git operation and is not dressed up as one.
+- **`rebase -i` takes its todo list as `--todo=pick:<oid>,squash:<oid>,…`**, because a command bar has no editor to open and the line still has to be replayable.
+- Not implemented on purpose, and refused by name: `--rebase-merges`, criss-cross merge bases, dropping commits already upstream by patch-id, reverting a merge without `-m`.
+
+Next, for M7: a second ref namespace under `refs/remotes/`, `push`/`fetch` against an in-memory peer, and the collaborator's view after a force-push. The object model already carries what that needs.
