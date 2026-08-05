@@ -2,15 +2,23 @@
  * Pixels. The topology comes from lib/layout; this file only turns lanes and
  * rows into coordinates, so the layout stays testable without a DOM.
  */
-export const ROW_HEIGHT = 62
-export const LANE_WIDTH = 58
-export const BOX_WIDTH = 108
-export const BOX_HEIGHT = 34
+/*
+ * The box is two lines tall: the accession number, and the subject of the
+ * commit under it. Reading a history meant hovering or guessing when only the
+ * hash was on the box, and the subject is what tells a beginner which commit
+ * they are looking at.
+ */
+export const ROW_HEIGHT = 76
+export const LANE_WIDTH = 70
+export const BOX_WIDTH = 132
+export const BOX_HEIGHT = 48
 export const MARGIN_X = 20
 export const MARGIN_Y = 20
 /** Gap between the widest lane and the column of catalogue cards. */
-export const CARD_GUTTER = 56
-export const CARD_WIDTH = 168
+export const CARD_GUTTER = 64
+export const CARD_WIDTH = 176
+/** Characters of the subject that fit inside a box at 11px. */
+export const SUBJECT_CHARS = 20
 
 export function boxLeft(lane: number): number {
   return MARGIN_X + lane * LANE_WIDTH

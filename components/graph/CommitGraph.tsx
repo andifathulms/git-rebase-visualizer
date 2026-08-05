@@ -27,6 +27,7 @@ import {
   centerX,
   centerY,
   edgePath,
+  SUBJECT_CHARS,
 } from './geometry'
 
 /**
@@ -55,6 +56,12 @@ export interface GraphProps {
 
 const CARD_HEIGHT = 26
 
+function subject(commit: Commit | undefined): string {
+  if (commit === undefined) return ''
+  const line = commit.message.split('\n')[0]
+  return line.length > SUBJECT_CHARS ? `${line.slice(0, SUBJECT_CHARS - 1)}…` : line
+}
+
 export function CommitGraph({
   layout,
   commits,
@@ -67,10 +74,12 @@ export function CommitGraph({
   graft,
   locale,
 }: GraphProps) {
+  const t = UI[locale]
+
   if (layout.rows === 0) {
     return (
-      <p className="font-mono text-sm text-faded">
-        {UI[locale].emptyShelf} <span className="text-ink">commit</span>.
+      <p className="font-mono text-sm text-muted">
+        {t.emptyShelf} <span className="text-ink">commit</span>.
       </p>
     )
   }
@@ -124,6 +133,8 @@ export function CommitGraph({
         const refs = refsAt.get(node.oid) ?? []
         const detachedHere = headRef === null && headOid === node.oid
         const select = onSelect ? () => onSelect(node.oid) : undefined
+        const isSelected = selected === node.oid
+        const isNew = highlighted.has(node.oid)
 
         // A copied commit travels out from the box it was copied from; an
         // original that was just superseded fades. Both together are the point:
@@ -147,46 +158,91 @@ export function CommitGraph({
 
         return (
           <g key={`${node.oid}-${graft?.run ?? 0}`} {...motion}>
-            <rect
-              x={boxLeft(node.lane)}
-              y={boxTop(node.row)}
-              width={BOX_WIDTH}
-              height={BOX_HEIGHT}
-              rx={2}
-              // Unreachable is faded — present but inactive. Never red, never
-              // styled as deleted. PRD §9, CLAUDE.md invariant 14.
-              className={`${node.reachable ? 'fill-kraft stroke-ink' : 'fill-board stroke-faded'} ${
-                select ? 'cursor-pointer' : ''
-              }`}
-              strokeWidth={selected === node.oid ? 2.5 : 1}
-              strokeDasharray={node.reachable ? undefined : '3 3'}
+            <g
+              // The box is the control: one target for pointer and keyboard,
+              // rather than a rect and a text label that behave differently.
+              role={select ? 'button' : undefined}
+              tabIndex={select ? 0 : undefined}
+              aria-pressed={select ? isSelected : undefined}
+              aria-label={
+                commit
+                  ? `${shortOid(node.oid)} — ${commit.message.split('\n')[0]}`
+                  : shortOid(node.oid)
+              }
               onClick={select}
-            />
-            <text
-              x={boxLeft(node.lane) + 8}
-              y={boxTop(node.row) + 22}
-              onClick={select}
-              // Stamp red is reserved for a changed hash and for destructive
-              // operations; a freshly written object is exactly the first case.
-              className={`font-mono text-[13px] ${
-                highlighted.has(node.oid)
-                  ? 'fill-stamp'
-                  : node.reachable
-                    ? 'fill-ink'
-                    : 'fill-faded'
-              } ${select ? 'cursor-pointer' : ''}`}
+              onKeyDown={
+                select
+                  ? (event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        select()
+                      }
+                    }
+                  : undefined
+              }
+              className={select ? 'cursor-pointer' : undefined}
             >
-              {shortOid(node.oid)}
-            </text>
-            {refs.length === 0 && !detachedHere ? (
+              <title>
+                {shortOid(node.oid)}
+                {commit ? ` — ${commit.message.split('\n')[0]}` : ''}
+                {node.reachable ? '' : ` (${t.legendUnreachable})`}
+              </title>
+
+              {/* The selection ring sits outside the box, so it never reads as
+                  a change to the box itself. */}
+              {isSelected ? (
+                <rect
+                  x={boxLeft(node.lane) - 4}
+                  y={boxTop(node.row) - 4}
+                  width={BOX_WIDTH + 8}
+                  height={BOX_HEIGHT + 8}
+                  rx={3}
+                  fill="none"
+                  className="stroke-catalogue"
+                  strokeWidth={2}
+                />
+              ) : null}
+
+              <rect
+                x={boxLeft(node.lane)}
+                y={boxTop(node.row)}
+                width={BOX_WIDTH}
+                height={BOX_HEIGHT}
+                rx={2}
+                // Unreachable is faded — present but inactive. Never red, never
+                // styled as deleted. PRD §9, CLAUDE.md invariant 14.
+                className={
+                  node.reachable ? 'fill-kraft stroke-ink' : 'fill-paper stroke-faded'
+                }
+                strokeWidth={isNew ? 2 : 1}
+                strokeDasharray={node.reachable ? undefined : '3 3'}
+              />
+
               <text
-                x={boxLeft(node.lane) + BOX_WIDTH + 10}
-                y={boxTop(node.row) + 22}
-                className={`font-sans text-[12px] ${node.reachable ? 'fill-ink/70' : 'fill-faded'}`}
+                x={boxLeft(node.lane) + 10}
+                y={boxTop(node.row) + 20}
+                // Stamp red is reserved for a changed hash and for destructive
+                // operations; a freshly written object is exactly the first
+                // case. `stamp-deep` because plain stamp on kraft is 2.9:1.
+                className={`font-mono text-[13px] ${
+                  isNew ? 'fill-stamp-deep' : node.reachable ? 'fill-ink' : 'fill-faded'
+                }`}
               >
-                {commit ? commit.message.split('\n')[0].slice(0, 24) : ''}
+                {shortOid(node.oid)}
               </text>
-            ) : null}
+
+              {/* The subject, inside the box. A hash alone does not tell a
+                  beginner which commit this is. */}
+              <text
+                x={boxLeft(node.lane) + 10}
+                y={boxTop(node.row) + 37}
+                className={`font-sans text-[11px] ${
+                  node.reachable ? 'fill-ink/75' : 'fill-faded'
+                }`}
+              >
+                {subject(commit)}
+              </text>
+            </g>
 
             {[...refs, ...(detachedHere ? ['HEAD-detached'] : [])].map((ref, index) => {
               const y = boxTop(node.row) + index * (CARD_HEIGHT + 4)
@@ -213,7 +269,7 @@ export function CommitGraph({
                     width={CARD_WIDTH}
                     height={CARD_HEIGHT}
                     rx={2}
-                    className={`${filled ? 'fill-catalogue' : 'fill-board'} stroke-catalogue`}
+                    className={`${filled ? 'fill-catalogue' : 'fill-paper'} stroke-catalogue`}
                     strokeWidth={1}
                     strokeDasharray={!detached && refKind(ref) === 'tag' ? '3 2' : undefined}
                   />
@@ -221,7 +277,7 @@ export function CommitGraph({
                     x={cardX + 8}
                     y={y + 18}
                     className={`font-display text-[11px] uppercase tracking-[0.14em] ${
-                      filled ? 'fill-board' : 'fill-catalogue'
+                      filled ? 'fill-paper' : 'fill-catalogue'
                     }`}
                   >
                     {detached
