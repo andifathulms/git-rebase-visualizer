@@ -184,7 +184,7 @@ export function Workbench({
   ]
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-1 flex-col">
       <SiteHeader
         locale={locale}
         path="/repo"
@@ -419,18 +419,7 @@ export function Workbench({
           </div>
         </div>
 
-        <footer className="mt-2 border-t border-ink/15 pt-3 text-[12px] leading-relaxed text-muted">
-          {t.honest}{' '}
-          <a
-            className="text-catalogue underline decoration-catalogue/40 underline-offset-2 hover:decoration-catalogue"
-            href="https://learngitbranching.js.org"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Learn Git Branching
-          </a>{' '}
-          — {t.prior}
-        </footer>
+        <p className="mt-2 max-w-prose text-[12px] leading-relaxed text-muted">{t.honest}</p>
       </main>
     </div>
   )

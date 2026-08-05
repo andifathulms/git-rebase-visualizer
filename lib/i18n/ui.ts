@@ -62,6 +62,7 @@ export interface UiCopy {
   readonly emptyShelf: string
 
   // — Site chrome —
+  readonly madeBy: string
   readonly navSandbox: string
   readonly navHome: string
   readonly language: string
@@ -199,6 +200,7 @@ const EN: UiCopy = {
   thenTry: 'Then try',
   emptyShelf: 'The shelf is empty. Write a file, then',
 
+  madeBy: 'Designed & built by',
   navSandbox: 'Sandbox',
   navHome: 'Home',
   language: 'Language',
@@ -347,6 +349,7 @@ const ID: UiCopy = {
   thenTry: 'Lalu coba',
   emptyShelf: 'Rak masih kosong. Tulis sebuah file, lalu',
 
+  madeBy: 'Dirancang & dibangun oleh',
   navSandbox: 'Sandbox',
   navHome: 'Beranda',
   language: 'Bahasa',

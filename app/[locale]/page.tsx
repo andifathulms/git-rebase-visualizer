@@ -113,17 +113,6 @@ export default function Home({ params }: { params: { locale: string } }) {
         <section className="border-t border-ink/15 py-12">
           <h2 className="font-display text-2xl uppercase tracking-tight">{t.honestTitle}</h2>
           <p className="mt-4 max-w-prose text-[15px] leading-relaxed text-muted">{t.honest}</p>
-          <p className="mt-4 max-w-prose text-[15px] leading-relaxed text-muted">
-            {t.prior}{' '}
-            <a
-              className="text-catalogue underline decoration-catalogue/40 underline-offset-2 hover:decoration-catalogue"
-              href="https://learngitbranching.js.org"
-              target="_blank"
-              rel="noreferrer"
-            >
-              learngitbranching.js.org
-            </a>
-          </p>
         </section>
       </main>
     </>

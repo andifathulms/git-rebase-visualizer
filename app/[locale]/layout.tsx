@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { SiteFooter } from '@/components/site/SiteFooter'
 import { LOCALES, isLocale } from '@/lib/i18n/locales'
 
 export function generateStaticParams() {
@@ -13,5 +14,10 @@ export default function LocaleLayout({
   params: { locale: string }
 }) {
   if (!isLocale(params.locale)) notFound()
-  return <>{children}</>
+  return (
+    <div className="flex min-h-screen flex-col">
+      <div className="flex flex-1 flex-col">{children}</div>
+      <SiteFooter locale={params.locale} />
+    </div>
+  )
 }
