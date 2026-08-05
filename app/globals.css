@@ -3,8 +3,37 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * 16px base with a generous measure. The interface previously ran a lot of
+   * explanation at 10–11px, which is where a teaching tool loses the reader it
+   * was written for: nothing below 12px carries prose here any more.
+   */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-board text-ink font-sans antialiased;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* One visible, consistent focus ring everywhere — keyboard users included. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-catalogue ring-offset-2 ring-offset-board;
+  }
+
+  /*
+   * `ring` is a box-shadow, and box-shadow does not paint on SVG children, so
+   * a focused commit box would have no visible focus at all. Outline does.
+   */
+  svg [role='button']:focus-visible {
+    outline: 2px solid theme('colors.catalogue');
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    @apply bg-catalogue text-paper;
   }
 }
 
@@ -14,8 +43,68 @@
     @apply border-b border-ink/25;
   }
 
+  /*
+   * A shelf label. Reserved for naming a region — never for prose, which is
+   * unreadable in wide-tracked uppercase.
+   */
   .label {
-    @apply font-display uppercase tracking-[0.18em] text-[11px] text-ink/70;
+    @apply font-display text-[11px] uppercase leading-none tracking-[0.16em] text-muted;
+  }
+
+  /* A sheet resting on the board: every panel in the workbench is one. */
+  .panel {
+    @apply flex min-h-0 flex-col border border-ink/15 bg-paper shadow-sheet;
+  }
+
+  .panel-head {
+    @apply flex flex-wrap items-center justify-between gap-2 border-b border-ink/10 bg-shelf/40 px-3 py-2;
+  }
+
+  .panel-body {
+    @apply px-3 py-2.5;
+  }
+
+  /* Body copy inside a panel. 13px is the floor. */
+  .prose-note {
+    @apply text-[13px] leading-relaxed text-muted;
+  }
+
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-1.5 border px-3 py-1.5 font-display text-[11px] uppercase tracking-[0.14em] transition-colors;
+  }
+
+  .btn-primary {
+    @apply btn border-catalogue bg-catalogue text-paper hover:bg-catalogue-deep hover:border-catalogue-deep;
+  }
+
+  .btn-secondary {
+    @apply btn border-catalogue bg-transparent text-catalogue hover:bg-catalogue-tint;
+  }
+
+  .btn-quiet {
+    @apply btn border-ink/25 bg-transparent text-muted hover:border-ink/50 hover:text-ink;
+  }
+
+  /* A small square control (arrows, steppers) — still a 28px target. */
+  .btn-icon {
+    @apply inline-flex h-7 w-7 items-center justify-center border border-ink/25 text-[12px] text-muted transition-colors hover:border-ink/50 hover:text-ink disabled:opacity-40 disabled:hover:border-ink/25;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 border border-ink/15 bg-paper px-2.5 py-1 font-mono text-[12px] leading-none text-muted;
+  }
+
+  .field {
+    @apply border border-ink/25 bg-paper px-2 py-1 font-mono text-[12px] text-ink outline-none placeholder:text-muted/70 focus:border-catalogue;
+  }
+
+  /* Region tab in the workbench rail. */
+  .tab {
+    @apply relative flex items-center gap-1.5 border-b-2 border-transparent px-2.5 py-2 font-display text-[11px] uppercase tracking-[0.12em] text-muted transition-colors hover:text-ink;
+  }
+
+  .tab-active {
+    @apply border-ink text-ink;
   }
 }
 
