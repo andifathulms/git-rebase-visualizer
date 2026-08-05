@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-board text-ink font-sans antialiased;
+  }
+}
+
+@layer components {
+  /* Shelf line under a lane of commit boxes — PRD §9 "Structure". */
+  .shelf-line {
+    @apply border-b border-ink/25;
+  }
+
+  .label {
+    @apply font-display uppercase tracking-[0.18em] text-[11px] text-ink/70;
+  }
+}
