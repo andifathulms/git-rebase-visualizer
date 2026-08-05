@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { BrandMark } from '@/components/site/BrandMark'
 import { LOCALES, type Locale } from '@/lib/i18n/locales'
 import { UI } from '@/lib/i18n/ui'
 
@@ -39,8 +40,9 @@ export function SiteHeader({
       <div className="mx-auto flex max-w-[100rem] flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2.5 sm:px-6">
         <Link
           href={`/${locale}`}
-          className="font-display text-[13px] uppercase leading-tight tracking-[0.1em] text-ink sm:text-[15px] sm:tracking-[0.14em]"
+          className="flex items-center gap-2 font-display text-[13px] uppercase leading-tight tracking-[0.1em] text-ink sm:text-[15px] sm:tracking-[0.14em]"
         >
+          <BrandMark />
           Git Rebase Simulator
         </Link>
 

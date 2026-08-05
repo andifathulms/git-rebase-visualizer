@@ -5,3 +5,8 @@ out/
 next-env.d.ts
 .DS_Store
 .env*.local
+
+# Brand-kit masters. The files the site and the README actually use are
+# copied into app/ and public/ and committed; this folder is the source
+# archive and stays out of the repo.
+exports/
