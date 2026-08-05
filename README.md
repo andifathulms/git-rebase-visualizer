@@ -42,9 +42,11 @@ pnpm dev
 
 ## Bagaimana ini diuji
 
-**Git asli sebagai oracle.** [`scripts/record-fixtures.mjs`](scripts/record-fixtures.mjs) menjalankan tujuh skenario lewat binary `git` yang sebenarnya dan merekam *strukturnya* — hubungan parent, posisi ref, commit mana yang berbagi tree, dan apakah commit yang ditandai selamat sebagai objek tak terjangkau. Fixture-nya tidak memuat satu hash pun: id commit memang berbeda karena git memasukkan waktu dan identitas, jadi menyamakannya justru salah.
+**Git asli sebagai oracle.** [`scripts/record-fixtures.mjs`](scripts/record-fixtures.mjs) menjalankan sembilan skenario lewat binary `git` yang sebenarnya, lalu merekam *strukturnya*: hubungan parent, posisi ref, commit mana yang berbagi tree, dan apakah commit yang ditandai selamat sebagai objek tak terjangkau. Dua skenario memakai repositori bare sungguhan sebagai peer, jadi `push` diuji terhadap pemeriksaan fast-forward milik git sendiri.
 
-Artinya klaim utama proyek ini datang dari git, bukan dari penalaran Cangkok. Rekaman gitnya sendiri yang melaporkan ujung branch sebelum rebase sebagai *ada tapi tak terjangkau*.
+Fixture-nya tidak memuat satu hash pun: id commit memang berbeda karena git memasukkan waktu dan identitas, jadi menyamakannya justru salah.
+
+Artinya klaim utama proyek ini datang dari git, bukan dari penalaran Cangkok. Rekaman gitnya sendiri yang melaporkan ujung branch sebelum rebase sebagai *ada tapi tak terjangkau* — begitu juga commit yang ditinggalkan `push --force` di sisi peer.
 
 **Append-only, setiap kali.** Setiap perintah di setiap tes memeriksa bahwa semua objek yang ada sebelumnya masih ada dan byte-identik sesudahnya. Ini bukan suite terpisah, melainkan asersi setelah setiap perintah.
 
@@ -56,7 +58,7 @@ Artinya klaim utama proyek ini datang dari git, bukan dari penalaran Cangkok. Re
 
 Bukan klien git, tidak menyentuh filesystem, tidak ada jaringan. Submodule, worktree, bisect, notes, LFS, packfile, dan strategi merge selain three-way ada di luar cakupan (PRD §4). Perintah yang tidak didukung **gagal dengan menyebut namanya** — tidak pernah diam-diam tidak melakukan apa-apa, dan tidak pernah menghasilkan jawaban yang masuk akal tapi salah.
 
-Remote dan force-push (M7) belum ada.
+`push` dan `fetch` bekerja terhadap satu peer simulasi bernama `origin` — namespace ref kedua di atas store yang sama, bukan jaringan (PRD §4). `pull` **sengaja tidak ada**: ia menyembunyikan separuh pekerjaannya, dan separuh itu yang mengubah riwayat Anda. Jalankan `fetch` lalu `merge origin/main` atau `rebase origin/main`.
 
 ## Struktur
 

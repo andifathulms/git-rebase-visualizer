@@ -115,6 +115,29 @@ export const SCENARIOS: readonly Scenario[] = [
     },
   },
   {
+    id: 'force-push-danger',
+    title: 'Rebase branch yang sudah di-push',
+    lesson:
+      'Branch ini sudah ada di origin. Rebase menulis ulang commit-nya, jadi push berikutnya ditolak — dan memaksanya membuat commit lama di origin tidak lagi ditunjuk apa pun. Rekan yang sudah fetch tetap memilikinya; yang clone hari ini tidak akan pernah melihatnya.',
+    script: [
+      'write layanan.txt "versi awal"',
+      'add layanan.txt',
+      'commit -m "layanan awal"',
+      'write layanan.txt "versi awal|tambahan"',
+      'add layanan.txt',
+      'commit -m "tambahan yang sudah dilihat orang"',
+      'push origin main',
+      'reset --hard HEAD~1',
+      'write layanan.txt "versi awal|tambahan versi rapi"',
+      'add layanan.txt',
+      'commit -m "tambahan versi rapi"',
+    ],
+    next: {
+      command: 'push origin main',
+      why: 'Akan ditolak, dan pesannya menyebut commit mana yang akan terlantar. Bandingkan dengan `push origin main --force`, lalu lihat panel origin.',
+    },
+  },
+  {
     id: 'conflicting-rebase',
     title: 'Rebase yang berkonflik',
     lesson:

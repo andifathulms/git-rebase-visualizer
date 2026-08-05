@@ -50,7 +50,19 @@ export function refRoots(repo: Repository): Oid[] {
   const roots = listRefs(repo.refs).map((ref) => repo.refs[ref])
   const head = resolveHead(repo.refs, repo.head)
   if (head) roots.push(head)
+  // The peer's refs hold objects alive too. Without this, pushing a branch and
+  // then deleting it locally would report the pushed commits as orphans, which
+  // is the opposite of the truth: the remote still has them.
+  for (const ref of listRefs(repo.remote.refs)) roots.push(repo.remote.refs[ref])
   return [...new Set(roots)].sort()
+}
+
+/** What is reachable from the remote's own refs — a collaborator's clone. */
+export function remoteReachable(repo: Repository): Set<Oid> {
+  return reachableFrom(
+    repo.store,
+    listRefs(repo.remote.refs).map((ref) => repo.remote.refs[ref]),
+  )
 }
 
 export function reachable(repo: Repository): Set<Oid> {

@@ -9,7 +9,7 @@ import { GitError } from './errors'
 import { parseLine } from './parse'
 import { history, status } from './query'
 import { entriesFor, HEAD_LOG } from './reflog'
-import { resolveHead, shortRef } from './refs'
+import { listRefs, resolveHead, shortRef } from './refs'
 import { revParse } from './revparse'
 import type { CommandResult, RebaseStep, Repository } from './state'
 import { add } from './commands/add'
@@ -20,6 +20,7 @@ import { commit } from './commands/commit'
 import { gc } from './commands/gc'
 import { merge, mergeAbort, mergeContinue } from './commands/merge'
 import { rebase, rebaseAbort, rebaseContinue, rebaseSkip } from './commands/rebase'
+import { fetch, push } from './commands/remote'
 import { reset } from './commands/reset'
 import { revert } from './commands/revert'
 import { createTag, deleteTag } from './commands/tag'
@@ -28,9 +29,9 @@ import type { ResetMode } from './commands/types'
 /** Commands git has that Cangkok deliberately does not — refused by name. */
 const OUT_OF_SCOPE: Record<string, string> = {
   clone: 'tidak ada jaringan dan tidak ada filesystem di Cangkok (PRD §4)',
-  fetch: 'remote baru masuk di M7',
-  push: 'remote baru masuk di M7',
-  pull: 'remote baru masuk di M7',
+  // PRD §6.7 asks for explicit push and fetch. `pull` hides the second half of
+  // what it does, and the second half is the part that rewrites your history.
+  pull: 'sengaja tidak ada — jalankan `fetch` lalu `merge origin/<branch>` (atau `rebase`), supaya terlihat langkah mana yang mengubah riwayat Anda',
   stash: 'di luar cakupan v1',
   bisect: 'di luar cakupan (PRD §4)',
   submodule: 'di luar cakupan (PRD §4)',
@@ -157,6 +158,28 @@ export function execute(repo: Repository, line: string): CommandResult {
         todo: options.todo === undefined ? undefined : parseTodo(options.todo),
       })
 
+    case 'push':
+      return push(repo, {
+        remote: args[0],
+        branch: args[1],
+        force: flags.has('force') || flags.has('f'),
+      })
+
+    case 'fetch':
+      return fetch(repo, { remote: args[0] })
+
+    case 'remote': {
+      const lines = listRefs(repo.remote.refs).map(
+        (ref) => `${repo.remote.name}/${shortRef(ref)}  ${repo.remote.refs[ref].slice(0, 7)}`,
+      )
+      return {
+        repo,
+        events: text(
+          lines.join('\n') || `${repo.remote.name} masih kosong — belum ada yang di-push.`,
+        ),
+      }
+    }
+
     case 'cherry-pick':
       if (flags.has('continue')) return cherryPickContinue(repo)
       if (flags.has('abort')) return cherryPickAbort(repo)
@@ -259,4 +282,7 @@ export const SUPPORTED_COMMANDS = [
   'status',
   'reflog',
   'gc',
+  'push',
+  'fetch',
+  'remote',
 ] as const

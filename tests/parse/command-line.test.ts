@@ -58,9 +58,12 @@ describe('execute — failing loudly', () => {
   })
 
   it('names a deliberately out-of-scope command instead of no-opping', () => {
-    expect(() => execute(repo, 'push origin main')).toThrow(/tidak didukung/)
+    expect(() => execute(repo, 'clone https://example.test/x')).toThrow(/tidak didukung/)
     expect(() => execute(repo, 'stash')).toThrow(/tidak didukung/)
     expect(() => execute(repo, 'bisect start')).toThrow(/tidak didukung/)
+    // pull is refused on purpose rather than for lack of machinery: it hides
+    // the half of its job that rewrites your history.
+    expect(() => execute(repo, 'pull')).toThrow(/fetch/)
   })
 
   it('sends rebase -i to the todo panel rather than guessing', () => {

@@ -70,6 +70,19 @@ export const EPOCH = 1_700_000_000
 /** One minute per operation — enough to order commits, small enough to read. */
 export const CLOCK_STEP = 60
 
+/**
+ * The other side of a push. PRD §4: remotes are simulated as a second ref
+ * namespace over the same in-memory store — never a real fetch, never a socket.
+ * The object store is shared because both sides genuinely do hold the objects
+ * once they have been pushed; what differs is which refs name them, and that
+ * difference is the whole force-push lesson.
+ */
+export interface RemoteState {
+  readonly name: string
+  /** The remote's own branches, e.g. `refs/heads/main`. */
+  readonly refs: RefMap
+}
+
 export interface Repository {
   readonly store: ObjectStore
   readonly refs: RefMap
@@ -91,6 +104,8 @@ export interface Repository {
   readonly worktree: FileMap
   /** A merge, rebase, or cherry-pick stopped at a conflict. */
   readonly pending: PendingOperation | null
+  /** The simulated peer. Present from the start, empty until the first push. */
+  readonly remote: RemoteState
 }
 
 export const INITIAL_BRANCH = 'refs/heads/main'
@@ -107,6 +122,7 @@ export function emptyRepository(identity: Identity = DEFAULT_IDENTITY): Reposito
     index: {},
     worktree: {},
     pending: null,
+    remote: { name: 'origin', refs: {} },
   }
 }
 

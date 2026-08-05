@@ -9,6 +9,10 @@
  *   write <path> <line>|<line>   write a file in the working tree
  *   mark <name>                  remember the current HEAD oid under a name
  *   @mark:<name>                 substituted with that oid anywhere in a line
+ *   remote-init                  give the repository a peer named origin
+ *
+ * The recorder makes `remote-init` a real bare repository plus `git remote add`;
+ * Cangkok always has exactly one simulated peer, so for it the line is a no-op.
  *
  * Commit messages are unique within each scenario's reachable history, which is
  * what lets the fixture describe structure by message instead of by hash.
@@ -118,6 +122,42 @@ export const SCENARIOS = [
       'add a.txt',
       'commit -m B',
       'revert HEAD --no-edit',
+    ],
+  },
+  {
+    id: 'push-fast-forward',
+    lesson: 'Push memindahkan ref di sisi peer; tidak ada objek baru yang dibuat.',
+    script: [
+      'remote-init',
+      'write a.txt satu',
+      'add a.txt',
+      'commit -m A',
+      'push origin main',
+      'write a.txt satu|dua',
+      'add a.txt',
+      'commit -m B',
+      'push origin main',
+    ],
+  },
+  {
+    id: 'force-push-drops-a-commit',
+    lesson:
+      'Force-push membuat commit lama di peer tidak lagi ditunjuk ref mana pun — tapi objeknya tidak dihapus.',
+    script: [
+      'remote-init',
+      'write a.txt satu',
+      'add a.txt',
+      'commit -m A',
+      'write a.txt satu|dua',
+      'add a.txt',
+      'commit -m B',
+      'push origin main',
+      'mark yang-ditinggalkan',
+      'reset --hard HEAD~1',
+      'write a.txt satu|dua versi rapi',
+      'add a.txt',
+      'commit -m "B rapi"',
+      'push origin main --force',
     ],
   },
   {

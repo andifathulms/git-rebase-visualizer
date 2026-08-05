@@ -11,6 +11,7 @@ import { FilePanel } from '@/components/files/FilePanel'
 import { CommitGraph } from '@/components/graph/CommitGraph'
 import { Register } from '@/components/reflog/Register'
 import { TodoPanel } from '@/components/rebase/TodoPanel'
+import { RemotePanel } from '@/components/remote/RemotePanel'
 import { GitError } from '@/lib/git/errors'
 import type { Commit } from '@/lib/git/objects'
 import { allCommits } from '@/lib/git/query'
@@ -195,6 +196,7 @@ export function Workbench({ initialScript }: { initialScript?: readonly string[]
             conflicts={repo.pending?.conflicts ?? []}
             onWrite={(path, lines) => submit(writeLine(path, lines))}
           />
+          <RemotePanel repo={repo} onRun={submit} />
           <TodoPanel repo={repo} onRun={submit} />
           <Register
             entries={[...repo.reflog].reverse()}

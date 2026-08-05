@@ -33,6 +33,7 @@ interface Scenario {
 
 interface Description {
   refs: Record<string, string>
+  remoteRefs: Record<string, string | null>
   head: string | null
   commits: Record<string, { parents: string[]; treeGroup: number }>
   marks: Record<string, { present: boolean; reachable: boolean }>
@@ -60,6 +61,12 @@ function runScenario(scenario: Scenario): { repo: Repository; marks: Record<stri
         ...repo,
         worktree: { ...repo.worktree, [tokens[1]]: tokens[2].split('|') },
       }
+      continue
+    }
+
+    if (tokens[0] === 'remote-init') {
+      // Cangkok always has exactly one simulated peer, so there is nothing to
+      // create; the recorder makes a real bare repository for the same line.
       continue
     }
 
@@ -134,6 +141,11 @@ function describeRepo(repo: Repository, marks: Record<string, Oid>): Description
   const refs: Record<string, string> = {}
   for (const ref of listRefs(repo.refs)) refs[ref] = labels[repo.refs[ref]]
 
+  const remoteRefs: Record<string, string | null> = {}
+  for (const ref of listRefs(repo.remote.refs)) {
+    remoteRefs[ref] = labels[repo.remote.refs[ref]] ?? null
+  }
+
   const markStates: Description['marks'] = {}
   for (const name of Object.keys(marks).sort()) {
     markStates[name] = {
@@ -144,6 +156,7 @@ function describeRepo(repo: Repository, marks: Record<string, Oid>): Description
 
   return {
     refs,
+    remoteRefs,
     head: repo.head.type === 'attached' ? shortRef(repo.head.ref) : null,
     commits,
     marks: markStates,
@@ -187,6 +200,20 @@ describe('oracle — the claims the fixtures encode', () => {
 
   it('confirms with real git that a hard reset removes no object', () => {
     expect(recorded['accidental-hard-reset'].marks['yang-hilang'].present).toBe(true)
+  })
+
+  it('confirms with real git that a force-push abandons the old commit on the peer', () => {
+    const fixture = recorded['force-push-drops-a-commit']
+    // Real git's own bare repository reported this: the object is still there,
+    // and nothing on either side names it any more.
+    expect(fixture.marks['yang-ditinggalkan']).toEqual({ present: true, reachable: false })
+    expect(fixture.remoteRefs['refs/heads/main']).toBe('B rapi')
+  })
+
+  it('confirms with real git that a fast-forward push adds no commit', () => {
+    const fixture = recorded['push-fast-forward']
+    expect(fixture.remoteRefs['refs/heads/main']).toBe('B')
+    expect(fixture.reachableCount).toBe(2)
   })
 
   it('confirms with real git that fast-forward adds no commit', () => {

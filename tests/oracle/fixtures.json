@@ -4,6 +4,7 @@
       "refs/heads/fitur": "D",
       "refs/heads/main": "B"
     },
+    "remoteRefs": {},
     "head": "fitur",
     "commits": {
       "A": {
@@ -42,6 +43,7 @@
       "refs/heads/fitur": "C",
       "refs/heads/main": "M"
     },
+    "remoteRefs": {},
     "head": "main",
     "commits": {
       "A": {
@@ -76,6 +78,7 @@
       "refs/heads/fitur": "B",
       "refs/heads/main": "B"
     },
+    "remoteRefs": {},
     "head": "main",
     "commits": {
       "A": {
@@ -97,6 +100,7 @@
       "refs/heads/main": "A",
       "refs/heads/penyelamat": "B"
     },
+    "remoteRefs": {},
     "head": "main",
     "commits": {
       "A": {
@@ -123,6 +127,7 @@
       "refs/heads/fitur": "P#0",
       "refs/heads/main": "P#1"
     },
+    "remoteRefs": {},
     "head": "main",
     "commits": {
       "A": {
@@ -160,6 +165,7 @@
     "refs": {
       "refs/heads/main": "Revert \"B\""
     },
+    "remoteRefs": {},
     "head": "main",
     "commits": {
       "A": {
@@ -182,11 +188,65 @@
     "marks": {},
     "reachableCount": 3
   },
+  "push-fast-forward": {
+    "refs": {
+      "refs/heads/main": "B",
+      "refs/remotes/origin/main": "B"
+    },
+    "remoteRefs": {
+      "refs/heads/main": "B"
+    },
+    "head": "main",
+    "commits": {
+      "A": {
+        "parents": [],
+        "treeGroup": 0
+      },
+      "B": {
+        "parents": [
+          "A"
+        ],
+        "treeGroup": 1
+      }
+    },
+    "marks": {},
+    "reachableCount": 2
+  },
+  "force-push-drops-a-commit": {
+    "refs": {
+      "refs/heads/main": "B rapi",
+      "refs/remotes/origin/main": "B rapi"
+    },
+    "remoteRefs": {
+      "refs/heads/main": "B rapi"
+    },
+    "head": "main",
+    "commits": {
+      "A": {
+        "parents": [],
+        "treeGroup": 0
+      },
+      "B rapi": {
+        "parents": [
+          "A"
+        ],
+        "treeGroup": 1
+      }
+    },
+    "marks": {
+      "yang-ditinggalkan": {
+        "present": true,
+        "reachable": false
+      }
+    },
+    "reachableCount": 2
+  },
   "messy-history": {
     "refs": {
       "refs/heads/fitur": "F3",
       "refs/heads/main": "U"
     },
+    "remoteRefs": {},
     "head": "fitur",
     "commits": {
       "A": {

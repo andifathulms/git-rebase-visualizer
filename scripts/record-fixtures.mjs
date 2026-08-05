@@ -50,6 +50,7 @@ function tokenize(line) {
 function runScenario(scenario) {
   const dir = mkdtempSync(join(tmpdir(), `cangkok-${scenario.id}-`))
   const marks = {}
+  let peer = null
 
   try {
     git(dir, ['init', '-q', '-b', 'main', '.'])
@@ -73,17 +74,27 @@ function runScenario(scenario) {
         continue
       }
 
+      if (tokens[0] === 'remote-init') {
+        // A real bare repository, so `push` exercises git's own fast-forward
+        // check rather than a stand-in for it.
+        peer = mkdtempSync(join(tmpdir(), `cangkok-${scenario.id}-peer-`))
+        git(peer, ['init', '-q', '--bare', '-b', 'main', '.'])
+        git(dir, ['remote', 'add', 'origin', peer])
+        continue
+      }
+
       git(dir, tokens)
     }
 
-    return describe(dir, marks)
+    return describe(dir, marks, peer)
   } finally {
     rmSync(dir, { recursive: true, force: true })
+    if (peer) rmSync(peer, { recursive: true, force: true })
   }
 }
 
 /** Turns a real repository into the hash-free structural description. */
-function describe(dir, marks) {
+function describe(dir, marks, peer) {
   const refLines = git(dir, ['for-each-ref', '--format=%(refname) %(objectname)'])
     .split('\n')
     .filter(Boolean)
@@ -152,6 +163,20 @@ function describe(dir, marks) {
     refMessages[name] = labels[refs[name]]
   }
 
+  // The peer's own branches, described by the same labels. This is what makes
+  // the force-push claim checkable: after it, origin/main names the rewritten
+  // commit and nothing on the peer names the old one.
+  const remoteRefs = {}
+  if (peer) {
+    const peerLines = git(peer, ['for-each-ref', '--format=%(refname) %(objectname)'])
+      .split('\n')
+      .filter(Boolean)
+    for (const line of peerLines) {
+      const [name, oid] = line.split(' ')
+      remoteRefs[name] = labels[oid] ?? null
+    }
+  }
+
   const markStates = {}
   for (const name of Object.keys(marks).sort()) {
     const oid = marks[name]
@@ -166,6 +191,7 @@ function describe(dir, marks) {
 
   return {
     refs: refMessages,
+    remoteRefs,
     head: git(dir, ['symbolic-ref', '-q', '--short', 'HEAD']) || null,
     commits,
     marks: markStates,
