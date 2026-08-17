@@ -138,6 +138,14 @@ export interface UiCopy {
   readonly tabRemote: string
   readonly tabRebase: string
   readonly tabRegister: string
+
+  // — Error boundary —
+  readonly errorTitle: string
+  readonly errorBody: string
+  readonly errorSessionLabel: string
+  readonly errorReplayWithoutLast: string
+  readonly errorReplayAll: string
+  readonly errorTryAgain: string
 }
 
 const EN: UiCopy = {
@@ -287,6 +295,14 @@ const EN: UiCopy = {
   tabRemote: 'Peer',
   tabRebase: 'Rebase -i',
   tabRegister: 'Register',
+
+  errorTitle: 'Something broke — the session did not',
+  errorBody:
+    'A session here is only a list of command lines, not a snapshot, so nothing is lost. The lines that got you here are below.',
+  errorSessionLabel: 'What ran',
+  errorReplayWithoutLast: 'Replay without the last line',
+  errorReplayAll: 'Replay all of it',
+  errorTryAgain: 'Try again',
 }
 
 const ID: UiCopy = {
@@ -436,6 +452,14 @@ const ID: UiCopy = {
   tabRemote: 'Rekan',
   tabRebase: 'Rebase -i',
   tabRegister: 'Register',
+
+  errorTitle: 'Ada yang rusak — sesinya tidak',
+  errorBody:
+    'Sesi di sini hanya daftar baris perintah, bukan snapshot, jadi tidak ada yang hilang. Baris yang membawa Anda ke sini ada di bawah.',
+  errorSessionLabel: 'Yang berjalan',
+  errorReplayWithoutLast: 'Putar ulang tanpa baris terakhir',
+  errorReplayAll: 'Putar ulang semuanya',
+  errorTryAgain: 'Coba lagi',
 }
 
 export const UI: Record<Locale, UiCopy> = { en: EN, id: ID }

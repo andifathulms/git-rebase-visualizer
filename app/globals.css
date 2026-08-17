@@ -48,11 +48,6 @@
 }
 
 @layer components {
-  /* Shelf line under a lane of commit boxes — PRD §9 "Structure". */
-  .shelf-line {
-    @apply border-b border-ink/25;
-  }
-
   /*
    * A shelf label. Reserved for naming a region — never for prose, which is
    * unreadable in wide-tracked uppercase.

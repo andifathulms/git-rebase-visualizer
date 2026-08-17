@@ -32,6 +32,7 @@ import { runLine, writeLine } from '@/lib/git/session'
 import { count } from '@/lib/git/store'
 import { emptyRepository, type GitEvent, type Repository } from '@/lib/git/state'
 import { layoutGraph } from '@/lib/layout/lanes'
+import { saveSession } from '@/lib/share/session'
 import { decodeScript, encodeScript } from '@/lib/share/url'
 import { findScenario, type Scenario } from '@/data/scenarios'
 import type { Locale } from '@/lib/i18n/locales'
@@ -74,6 +75,11 @@ export function Workbench({
     () => script.reduce((current, line) => runLine(current, line).repo, emptyRepository()),
     [script],
   )
+
+  // DESIGN-REWORK.md §4: mirrored so app/[locale]/error.tsx can recover the
+  // session's command lines after a render-time throw takes this component
+  // out — a crash loses the mounted tree, not sessionStorage.
+  useEffect(() => saveSession(script), [script])
 
   const say = useCallback((kind: OutputLine['kind'], text: string) => {
     setOutput((lines) => [...lines, { id: nextId.current++, kind, text }])

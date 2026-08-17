@@ -98,7 +98,6 @@ const config: Config = {
       boxShadow: {
         // A sheet resting on the board, not a floating web card.
         sheet: '0 1px 0 rgba(35, 33, 28, 0.05), 0 6px 16px -12px rgba(35, 33, 28, 0.45)',
-        lift: '0 2px 0 rgba(35, 33, 28, 0.06), 0 12px 24px -14px rgba(35, 33, 28, 0.5)',
       },
       maxWidth: {
         prose: '68ch',
