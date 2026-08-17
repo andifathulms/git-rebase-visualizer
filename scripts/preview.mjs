@@ -21,7 +21,13 @@ const TYPES = {
 }
 
 async function resolveFile(pathname) {
-  const candidate = join(ROOT, normalize(pathname).replace(/^(\.\.[/\\])+/, ''))
+  // Next writes chunk files under the literal route segment name, brackets
+  // and all (app/[locale]/repo/page-*.js) — but a browser request for that
+  // asset arrives percent-encoded (%5Blocale%5D), so the lookup has to
+  // decode before it ever reaches the filesystem or every dynamic-route
+  // page's script 404s and the page silently never hydrates.
+  const decoded = decodeURIComponent(pathname)
+  const candidate = join(ROOT, normalize(decoded).replace(/^(\.\.[/\\])+/, ''))
   try {
     const info = await stat(candidate)
     if (info.isDirectory()) return join(candidate, 'index.html')

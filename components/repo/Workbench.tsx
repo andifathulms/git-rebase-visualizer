@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CommandBar, type OutputLine, type Prefill } from '@/components/command/CommandBar'
 import { FilePanel } from '@/components/files/FilePanel'
 import { CommitGraph, type Graft } from '@/components/graph/CommitGraph'
+import { BOX_HEIGHT, boxTop } from '@/components/graph/geometry'
 import { Legend } from '@/components/graph/Legend'
 import { Register } from '@/components/reflog/Register'
 import { TodoPanel } from '@/components/rebase/TodoPanel'
@@ -63,6 +64,8 @@ export function Workbench({
   const [oriented, setOriented] = useState(true)
   const nextId = useRef(0)
   const runCount = useRef(0)
+  const graphScrollRef = useRef<HTMLDivElement>(null)
+  const scrolledForRun = useRef(0)
 
   // Because the engine is deterministic, the script is the state: replaying it
   // rebuilds a byte-identical repository, which is what makes a shared link
@@ -155,6 +158,26 @@ export function Workbench({
     for (const node of layout.nodes) map.set(node.oid, refsAtOid(repo.refs, node.oid))
     return map
   }, [layout, repo.refs])
+
+  // DESIGN-REWORK.md §2: the graph panel is height-capped below, so a long
+  // rebase can push its new boxes out of the visible area. The engine
+  // already reports what it copied (graft.pairs) — scroll to the midpoint of
+  // the whole replayed span, not just its deepest row, so a multi-commit
+  // rebase isn't left with its earliest new box clipped above the fold.
+  useEffect(() => {
+    if (!graft || graft.run === scrolledForRun.current) return
+    const container = graphScrollRef.current
+    if (!container) return
+    const newOids = new Set(graft.pairs.map((pair) => pair.to))
+    const rows = layout.nodes.filter((node) => newOids.has(node.oid)).map((node) => node.row)
+    scrolledForRun.current = graft.run
+    if (rows.length === 0) return
+    const spanMid = boxTop((Math.min(...rows) + Math.max(...rows)) / 2)
+    container.scrollTo({
+      top: Math.max(0, spanMid + BOX_HEIGHT / 2 - container.clientHeight / 2),
+      behavior: 'smooth',
+    })
+  }, [graft, layout])
 
   const orphans = useMemo(() => orphanedCommits(repo), [repo])
   const headOid = resolveHead(repo.refs, repo.head) ?? null
@@ -304,7 +327,10 @@ export function Workbench({
                 <span className="label">{t.graphTitle}</span>
                 <Legend locale={locale} />
               </header>
-              <div className="min-h-[24rem] overflow-auto p-3">
+              <div
+                ref={graphScrollRef}
+                className="min-h-[24rem] max-h-[32rem] overflow-auto p-3 lg:max-h-[40vh]"
+              >
                 <CommitGraph
                   layout={layout}
                   commits={commitMap}

@@ -118,7 +118,13 @@ export function CommandBar({
   }
 
   return (
-    <section className="panel">
+    // Bounded like the graph panel, for the same reason (DESIGN-REWORK.md
+    // §2): `.panel`'s own `flex min-h-0 flex-col` only makes the output
+    // log's `overflow-y-auto` actually scroll, instead of growing forever,
+    // once something above gives `.panel` itself a real height to fill.
+    // Pinning this panel to the column's bottom (in Workbench.tsx) only
+    // makes sense for a panel that stays a sane size in the first place.
+    <section className="panel max-h-[28rem]">
       <header className="panel-head">
         <span className="label">{t.commandBar}</span>
         <button
