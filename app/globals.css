@@ -7,6 +7,16 @@
    * 16px base with a generous measure. The interface previously ran a lot of
    * explanation at 10–11px, which is where a teaching tool loses the reader it
    * was written for: nothing below 12px carries prose here any more.
+   *
+   * One weight per family, and it stays that way — no font-bold, no
+   * font-semibold, no font-medium anywhere in this codebase. Three families
+   * (Azeret Mono, Archivo, Source Sans 3) already carry hierarchy on their
+   * own; emphasis comes from family, tracking, case, and colour, never from
+   * weight. A records room is a uniformly-weighted place — every card in the
+   * catalogue is typed on the same machine — and `tests/ui/tokens.test.ts`
+   * fails the build on the first font-bold/font-semibold/font-medium anyone
+   * reaches for, so the rule doesn't die quietly the way the 12px floor
+   * almost did.
    */
   html {
     -webkit-text-size-adjust: 100%;

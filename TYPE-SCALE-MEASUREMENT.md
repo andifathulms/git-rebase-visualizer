@@ -234,3 +234,27 @@ step for one call site" reasoning as the rest of this scale.
 The full `fontSize` scale is now 9 named steps, defined in `tailwind.config.ts`. All 89
 histogrammed call sites plus these 8 were migrated; `pnpm typecheck`, `pnpm lint`,
 `pnpm test:run` (221 tests), and `pnpm build` all pass against the result.
+
+## Correction — a 90th–94th call site the histogram missed entirely (2026-08-17)
+
+`components/compare/Comparison.tsx` carries two literal NUL bytes (`\x00`, inside
+`.join('\x00')` calls unrelated to typography — left as found, out of this change's
+scope). A NUL byte makes most `grep` implementations classify the whole file as binary
+and silently skip it on a recursive search, which is exactly what happened: the method
+line above (`grep -rnoE ... app components lib`) never touched this file, and neither did
+the earlier design audit. `git log`/`git diff` confirm the file predates this session
+unchanged — it was always invisible to the tool, not newly written.
+
+`tests/ui/tokens.test.ts` (step 3, added after step 2's migration) reads files with
+Node's `readFileSync` rather than shell `grep`, so it caught what the histogram missed:
+5 more `text-[Npx]` call sites in that one file — `text-[12px]` (chrome, tip line),
+`text-[13px]` (chrome, approach-selector button), `text-[15px]`×2 (prose, approach notes),
+and `text-[16px]` (prose/emphasis, the "final content is identical" payoff paragraph —
+the only occurrence of 16px anywhere in the codebase). All five are now migrated: the
+three that matched already-established mappings went to `label`/`note`/`body`; the
+16px payoff paragraph — an emphasis role closer to the intro paragraphs elsewhere than to
+routine body copy — went to `lede` rather than getting a tenth step for one call site.
+
+Corrected totals: **94 pre-migration call sites** (89 + 5), all now on the named scale.
+A full repo-wide scan for embedded NUL bytes across `app/`, `components/`, `lib/`, `data/`
+found no other affected file.
