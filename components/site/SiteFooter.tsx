@@ -17,7 +17,7 @@ export function SiteFooter({ locale }: { locale: Locale }) {
   return (
     <footer className="mt-8 border-t border-ink/15">
       <div className="mx-auto flex max-w-[100rem] flex-col gap-x-8 gap-y-3 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
-        <p className="max-w-prose text-[12px] leading-relaxed text-muted">
+        <p className="max-w-prose text-label leading-relaxed text-muted">
           {t.prior}{' '}
           <a
             className="text-catalogue underline decoration-catalogue/40 underline-offset-2 hover:decoration-catalogue"

@@ -21,10 +21,10 @@ export default function ScenarioLibrary({ params }: { params: { locale: string }
 
       <main id="main" className="mx-auto max-w-5xl px-6 pb-20 pt-10">
         <p className="label">{en ? 'Scenario library' : 'Perpustakaan skenario'}</p>
-        <h1 className="mt-3 font-display text-3xl uppercase tracking-tight sm:text-4xl">
+        <h1 className="mt-3 font-display text-title uppercase tracking-tight sm:text-display">
           {en ? 'Start here' : 'Mulai dari sini'}
         </h1>
-        <p className="mt-4 max-w-prose text-[17px] leading-relaxed text-muted">
+        <p className="mt-4 max-w-prose text-lede leading-relaxed text-muted">
           {en
             ? 'Each scenario is a script of commands, not a snapshot — it replays when you open it, so what you see cannot disagree with what the commands actually do. Every one stops just before the interesting command and names it.'
             : 'Setiap skenario adalah skrip perintah, bukan snapshot — dijalankan ulang saat dibuka, jadi keadaannya tidak mungkin berbeda dari apa yang perintahnya benar-benar lakukan. Semuanya berhenti tepat sebelum perintah yang menarik, dan menyebutkan namanya.'}
@@ -35,19 +35,19 @@ export default function ScenarioLibrary({ params }: { params: { locale: string }
             <li key={scenario.id} className="panel">
               <div className="panel-body flex h-full flex-col gap-3">
                 <div>
-                  <h2 className="font-display text-[17px] uppercase leading-snug tracking-[0.06em]">
+                  <h2 className="font-display text-lede uppercase leading-snug tracking-[0.06em]">
                     {scenario.title[locale]}
                   </h2>
-                  <code className="mt-1 block font-mono text-[11.5px] text-muted">
+                  <code className="mt-1 block font-mono text-label text-muted">
                     {scenario.id}
                   </code>
                 </div>
 
-                <p className="text-[15px] leading-relaxed text-muted">{scenario.lesson[locale]}</p>
+                <p className="text-body leading-relaxed text-muted">{scenario.lesson[locale]}</p>
 
-                <p className="text-[13px] leading-relaxed text-muted">
+                <p className="text-note leading-relaxed text-muted">
                   <span className="label">{t.thenTry}</span>{' '}
-                  <code className="border border-stamp/40 bg-stamp-tint px-1.5 py-0.5 font-mono text-[12.5px] text-stamp">
+                  <code className="border border-stamp/40 bg-stamp-tint px-1.5 py-0.5 font-mono text-note text-stamp">
                     {scenario.next.command}
                   </code>{' '}
                   — {scenario.next.why[locale]}

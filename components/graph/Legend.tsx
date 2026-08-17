@@ -21,7 +21,7 @@ export function Legend({ locale }: { locale: Locale }) {
   const t = UI[locale]
 
   return (
-    <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-muted">
+    <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-label text-muted">
       <li className="flex items-center gap-2">
         <Swatch>
           <rect x={1} y={2} width={24} height={12} rx={2} className="fill-kraft stroke-ink" />
@@ -60,7 +60,7 @@ export function Legend({ locale }: { locale: Locale }) {
             className="fill-kraft stroke-ink"
             strokeWidth={2}
           />
-          <text x={5} y={12} className="fill-stamp-deep font-mono text-[9px]">
+          <text x={5} y={12} className="fill-stamp-deep font-mono text-label">
             a1b2
           </text>
         </Swatch>

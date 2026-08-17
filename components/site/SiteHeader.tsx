@@ -32,7 +32,7 @@ export function SiteHeader({
     <header className="sticky top-0 z-20 border-b border-ink/15 bg-board/95 backdrop-blur">
       <a
         href="#main"
-        className="absolute left-2 top-2 z-30 -translate-y-16 bg-ink px-3 py-2 font-display text-[11px] uppercase tracking-[0.14em] text-paper transition-transform focus:translate-y-0"
+        className="absolute left-2 top-2 z-30 -translate-y-16 bg-ink px-3 py-2 font-display text-label uppercase tracking-[0.14em] text-paper transition-transform focus:translate-y-0"
       >
         {t.skipToMain}
       </a>
@@ -40,7 +40,7 @@ export function SiteHeader({
       <div className="mx-auto flex max-w-[100rem] flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2.5 sm:px-6">
         <Link
           href={`/${locale}`}
-          className="flex items-center gap-2 font-display text-[13px] uppercase leading-tight tracking-[0.1em] text-ink sm:text-[15px] sm:tracking-[0.14em]"
+          className="flex items-center gap-2 font-display text-note uppercase leading-tight tracking-[0.1em] text-ink sm:text-body sm:tracking-[0.14em]"
         >
           <BrandMark />
           Git Rebase Simulator
@@ -54,7 +54,7 @@ export function SiteHeader({
                 key={link.href}
                 href={`/${locale}${link.href}`}
                 aria-current={active ? 'page' : undefined}
-                className={`px-2.5 py-1 font-display text-[11px] uppercase tracking-[0.14em] transition-colors ${
+                className={`px-2.5 py-1 font-display text-label uppercase tracking-[0.14em] transition-colors ${
                   active ? 'bg-ink text-paper' : 'text-muted hover:text-ink'
                 }`}
               >
@@ -77,7 +77,7 @@ export function SiteHeader({
                 href={`/${option}${path}`}
                 hrefLang={option}
                 aria-current={option === locale ? 'true' : undefined}
-                className={`px-2 py-1 font-mono text-[11px] leading-none transition-colors ${
+                className={`px-2 py-1 font-mono text-label leading-none transition-colors ${
                   option === locale ? 'bg-ink text-paper' : 'text-muted hover:text-ink'
                 }`}
               >

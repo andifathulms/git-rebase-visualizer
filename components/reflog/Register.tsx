@@ -37,11 +37,11 @@ export function Register({
           <p className="label mb-1">
             {t.boxesWithoutCards} ({orphans.length})
           </p>
-          <p className="mb-2 text-[12.5px] leading-relaxed text-muted">{t.orphanHelp}</p>
+          <p className="mb-2 text-note leading-relaxed text-muted">{t.orphanHelp}</p>
           <ul className="space-y-1">
             {orphans.map((oid) => (
               <li key={oid} className="flex items-center justify-between gap-2">
-                <span className="font-mono text-[12.5px] text-muted">{shortOid(oid)}</span>
+                <span className="font-mono text-note text-muted">{shortOid(oid)}</span>
                 <button
                   type="button"
                   onClick={() => onRecover(oid)}
@@ -57,23 +57,23 @@ export function Register({
 
       <ol className="min-h-0 max-h-[26rem] flex-1 divide-y divide-ink/10 overflow-y-auto">
         {entries.length === 0 ? (
-          <li className="px-3 py-2.5 font-mono text-[12.5px] text-muted">{t.noMovements}</li>
+          <li className="px-3 py-2.5 font-mono text-note text-muted">{t.noMovements}</li>
         ) : (
           entries.map((entry, index) => (
             <li key={`${entry.ref}-${index}-${entry.timestamp}`} className="px-3 py-2">
               <div className="flex items-baseline justify-between gap-2">
-                <span className="font-mono text-[13px] text-ink">
+                <span className="font-mono text-note text-ink">
                   {entry.after ? shortOid(entry.after) : '—'}
                 </span>
-                <span className="font-display text-[11px] uppercase tracking-[0.12em] text-catalogue">
+                <span className="font-display text-label uppercase tracking-[0.12em] text-catalogue">
                   {entry.ref === 'HEAD' ? 'HEAD' : shortRef(entry.ref)}
                 </span>
               </div>
-              <p className="mt-1 text-[12.5px] leading-snug text-muted">
+              <p className="mt-1 text-note leading-snug text-muted">
                 <span className="font-mono">{entry.operation}</span> — {entry.message}
               </p>
               {entry.before && entry.before !== entry.after ? (
-                <p className="mt-0.5 font-mono text-[11.5px] text-muted">
+                <p className="mt-0.5 font-mono text-label text-muted">
                   {locale === 'en' ? 'from' : 'dari'} {shortOid(entry.before)}
                 </p>
               ) : null}

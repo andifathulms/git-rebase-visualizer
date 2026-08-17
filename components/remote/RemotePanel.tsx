@@ -61,7 +61,7 @@ export function RemotePanel({
       </header>
 
       {view.refs.length === 0 ? (
-        <p className="px-3 py-2.5 text-[12.5px] leading-relaxed text-muted">
+        <p className="px-3 py-2.5 text-note leading-relaxed text-muted">
           {t.remoteEmpty}
         </p>
       ) : (
@@ -71,19 +71,19 @@ export function RemotePanel({
               const tracking = repo.refs[`refs/remotes/${repo.remote.name}/${shortRef(ref)}`]
               return (
                 <li key={ref} className="flex items-baseline justify-between gap-2 px-3 py-2">
-                  <span className="font-display text-[11px] uppercase tracking-[0.12em] text-catalogue">
+                  <span className="font-display text-label uppercase tracking-[0.12em] text-catalogue">
                     {repo.remote.name}/{shortRef(ref)}
                   </span>
-                  <span className="font-mono text-[12.5px] text-ink">{shortOid(oid)}</span>
+                  <span className="font-mono text-note text-ink">{shortOid(oid)}</span>
                   {tracking !== oid ? (
-                    <span className="font-mono text-[11.5px] text-stamp">{t.notFetched}</span>
+                    <span className="font-mono text-label text-stamp">{t.notFetched}</span>
                   ) : null}
                 </li>
               )
             })}
           </ul>
 
-          <p className="border-t border-ink/10 px-3 py-2 text-[12.5px] text-muted">
+          <p className="border-t border-ink/10 px-3 py-2 text-note text-muted">
             {t.freshClone} <span className="font-mono">{view.commits.length}</span> commit.
           </p>
         </>
@@ -94,15 +94,15 @@ export function RemotePanel({
           <p className="label mb-1">
             {t.notOnRemote} {repo.remote.name} ({localOnly.length})
           </p>
-          <p className="text-[12.5px] leading-relaxed text-muted">{t.notOnRemoteHelp}</p>
-          <p className="mt-1.5 font-mono text-[12px] text-muted">
+          <p className="text-note leading-relaxed text-muted">{t.notOnRemoteHelp}</p>
+          <p className="mt-1.5 font-mono text-label text-muted">
             {localOnly.map((oid) => shortOid(oid)).join(' ')}
           </p>
         </div>
       ) : null}
 
       {listRefs(repo.refs, 'remote').length === 0 && view.refs.length > 0 ? (
-        <p className="border-t border-ink/10 px-3 py-2 text-[12.5px] text-muted">
+        <p className="border-t border-ink/10 px-3 py-2 text-note text-muted">
           <code>fetch</code> — {repo.remote.name}/…
         </p>
       ) : null}

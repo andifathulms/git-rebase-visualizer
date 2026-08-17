@@ -213,3 +213,24 @@ never below 12px except in the reference-panel starter-line buttons.
   file.
 - No occurrence was found outside `app/`, `components/`; `lib/` contributed zero matches,
   consistent with `lib/git`, `lib/hash`, and `lib/layout` carrying no rendering.
+
+## Addendum — step 2 migration (2026-08-17)
+
+This histogram was scoped to `text-[Npx]` arbitrary values, per DESIGN-REWORK.md §1. But
+replacing `theme.fontSize` wholesale (§1.2 point 2) removes Tailwind's *entire* default
+scale, not just the arbitrary-value escape hatch — and 8 call sites outside this
+histogram were still on the default scale: `text-sm` (`CommitGraph.tsx`'s empty-shelf
+message), `text-xl`/`text-2xl`×3 (home hero lead and three section headings), and
+`text-3xl`/`sm:text-4xl`×2 (the banding and skenario page h1s), plus the home hero's own
+`text-4xl`/`sm:text-6xl`. Left alone, the wholesale replacement would have silently
+dropped their sizing.
+
+Five more named steps were added at the exact pixel-equivalent of what they replace, so
+none of the eight changes size: `lead` (20px), `heading` (24px), `title` (30px), `display`
+(36px), `hero` (60px). `text-sm` (14px, one call site) folded into the existing `note`
+(13px) rather than getting its own step, on the same "no visible jump, don't invent a
+step for one call site" reasoning as the rest of this scale.
+
+The full `fontSize` scale is now 9 named steps, defined in `tailwind.config.ts`. All 89
+histogrammed call sites plus these 8 were migrated; `pnpm typecheck`, `pnpm lint`,
+`pnpm test:run` (221 tests), and `pnpm build` all pass against the result.

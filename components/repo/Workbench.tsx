@@ -241,7 +241,7 @@ export function Workbench({
             <div className="panel-body flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="label">{t.orientationTitle}</p>
-                <p className="mt-1.5 max-w-prose text-[14px] leading-relaxed text-ink/85">
+                <p className="mt-1.5 max-w-prose text-note leading-relaxed text-ink/85">
                   {t.orientationBody}
                 </p>
               </div>
@@ -258,10 +258,10 @@ export function Workbench({
               <p className="label">
                 {t.scenarioLabel} — {scenario.title[locale]}
               </p>
-              <p className="mt-1.5 max-w-prose text-[14px] leading-relaxed text-ink/85">
+              <p className="mt-1.5 max-w-prose text-note leading-relaxed text-ink/85">
                 {scenario.lesson[locale]}
               </p>
-              <p className="mt-2 text-[13px] text-muted">
+              <p className="mt-2 text-note text-muted">
                 {t.thenTry}{' '}
                 <button
                   type="button"
@@ -272,7 +272,7 @@ export function Workbench({
                       n: (current?.n ?? 0) + 1,
                     }))
                   }
-                  className="border border-stamp/40 bg-stamp-tint px-2 py-0.5 font-mono text-[12.5px] text-stamp"
+                  className="border border-stamp/40 bg-stamp-tint px-2 py-0.5 font-mono text-note text-stamp"
                 >
                   {scenario.next.command}
                 </button>{' '}
@@ -283,7 +283,7 @@ export function Workbench({
         ) : null}
 
         {orphans.length > 0 ? (
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 border-l-2 border-faded bg-paper px-4 py-2.5 text-[13px] text-muted">
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 border-l-2 border-faded bg-paper px-4 py-2.5 text-note text-muted">
             <span>
               <span className="font-mono text-ink">{orphans.length}</span> {t.orphanBanner}
             </span>
@@ -318,7 +318,7 @@ export function Workbench({
                   locale={locale}
                 />
               </div>
-              <p className="border-t border-ink/10 px-3 py-1.5 text-[12px] text-muted">
+              <p className="border-t border-ink/10 px-3 py-1.5 text-label text-muted">
                 {t.legendHint} {t.scrollHint}
               </p>
             </section>
@@ -363,7 +363,7 @@ export function Workbench({
                 >
                   {tab.label}
                   {tab.badge ? (
-                    <span className="border border-catalogue px-1 font-mono text-[10px] leading-4 text-catalogue">
+                    <span className="border border-catalogue px-1 font-mono text-label leading-4 text-catalogue">
                       {tab.badge}
                     </span>
                   ) : null}
@@ -419,7 +419,7 @@ export function Workbench({
           </div>
         </div>
 
-        <p className="mt-2 max-w-prose text-[12px] leading-relaxed text-muted">{t.honest}</p>
+        <p className="mt-2 max-w-prose text-label leading-relaxed text-muted">{t.honest}</p>
       </main>
     </div>
   )

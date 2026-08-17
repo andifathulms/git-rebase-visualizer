@@ -48,7 +48,7 @@
    * unreadable in wide-tracked uppercase.
    */
   .label {
-    @apply font-display text-[11px] uppercase leading-none tracking-[0.16em] text-muted;
+    @apply font-display text-label uppercase leading-none tracking-[0.16em] text-muted;
   }
 
   /* A sheet resting on the board: every panel in the workbench is one. */
@@ -66,11 +66,11 @@
 
   /* Body copy inside a panel. 13px is the floor. */
   .prose-note {
-    @apply text-[13px] leading-relaxed text-muted;
+    @apply text-note leading-relaxed text-muted;
   }
 
   .btn {
-    @apply inline-flex select-none items-center justify-center gap-1.5 border px-3 py-1.5 font-display text-[11px] uppercase tracking-[0.14em] transition-colors;
+    @apply inline-flex select-none items-center justify-center gap-1.5 border px-3 py-1.5 font-display text-label uppercase tracking-[0.14em] transition-colors;
   }
 
   .btn-primary {
@@ -87,20 +87,20 @@
 
   /* A small square control (arrows, steppers) — still a 28px target. */
   .btn-icon {
-    @apply inline-flex h-7 w-7 items-center justify-center border border-ink/25 text-[12px] text-muted transition-colors hover:border-ink/50 hover:text-ink disabled:opacity-40 disabled:hover:border-ink/25;
+    @apply inline-flex h-7 w-7 items-center justify-center border border-ink/25 text-label text-muted transition-colors hover:border-ink/50 hover:text-ink disabled:opacity-40 disabled:hover:border-ink/25;
   }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 border border-ink/15 bg-paper px-2.5 py-1 font-mono text-[12px] leading-none text-muted;
+    @apply inline-flex items-center gap-1.5 border border-ink/15 bg-paper px-2.5 py-1 font-mono text-label leading-none text-muted;
   }
 
   .field {
-    @apply border border-ink/25 bg-paper px-2 py-1 font-mono text-[12px] text-ink outline-none placeholder:text-muted/70 focus:border-catalogue;
+    @apply border border-ink/25 bg-paper px-2 py-1 font-mono text-label text-ink outline-none placeholder:text-muted/70 focus:border-catalogue;
   }
 
   /* Region tab in the workbench rail. */
   .tab {
-    @apply relative flex items-center gap-1.5 border-b-2 border-transparent px-2.5 py-2 font-display text-[11px] uppercase tracking-[0.12em] text-muted transition-colors hover:text-ink;
+    @apply relative flex items-center gap-1.5 border-b-2 border-transparent px-2.5 py-2 font-display text-label uppercase tracking-[0.12em] text-muted transition-colors hover:text-ink;
   }
 
   .tab-active {

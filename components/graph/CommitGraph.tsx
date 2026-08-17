@@ -78,7 +78,7 @@ export function CommitGraph({
 
   if (layout.rows === 0) {
     return (
-      <p className="font-mono text-sm text-muted">
+      <p className="font-mono text-note text-muted">
         {t.emptyShelf} <span className="text-ink">commit</span>.
       </p>
     )
@@ -224,7 +224,7 @@ export function CommitGraph({
                 // Stamp red is reserved for a changed hash and for destructive
                 // operations; a freshly written object is exactly the first
                 // case. `stamp-deep` because plain stamp on kraft is 2.9:1.
-                className={`font-mono text-[13px] ${
+                className={`font-mono text-note ${
                   isNew ? 'fill-stamp-deep' : node.reachable ? 'fill-ink' : 'fill-faded'
                 }`}
               >
@@ -236,7 +236,7 @@ export function CommitGraph({
               <text
                 x={boxLeft(node.lane) + 10}
                 y={boxTop(node.row) + 37}
-                className={`font-sans text-[11px] ${
+                className={`font-sans text-label ${
                   node.reachable ? 'fill-ink/75' : 'fill-faded'
                 }`}
               >
@@ -276,7 +276,7 @@ export function CommitGraph({
                   <text
                     x={cardX + 8}
                     y={y + 18}
-                    className={`font-display text-[11px] uppercase tracking-[0.14em] ${
+                    className={`font-display text-label uppercase tracking-[0.14em] ${
                       filled ? 'fill-paper' : 'fill-catalogue'
                     }`}
                   >

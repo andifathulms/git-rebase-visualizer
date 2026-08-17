@@ -92,7 +92,7 @@ function Box({
       <text
         x={x + 10}
         y={y + 20}
-        className={`font-mono text-[13px] ${
+        className={`font-mono text-note ${
           tone === 'fresh' ? 'fill-stamp-deep' : tone === 'stranded' ? 'fill-faded' : 'fill-ink'
         }`}
       >
@@ -156,7 +156,7 @@ function Card({ lane, row, name }: { lane: 0 | 1; row: number; name: string }) {
       <text
         x={CARD_X + 10}
         y={y + 16}
-        className="fill-catalogue font-display text-[11px] uppercase tracking-[0.12em]"
+        className="fill-catalogue font-display text-label uppercase tracking-[0.12em]"
       >
         {name}
       </text>
@@ -235,7 +235,7 @@ export function RebaseDiagram({ locale }: { locale: Locale }) {
         </Panel>
       </div>
 
-      <p className="max-w-prose text-[15px] leading-relaxed text-muted">{t.diagramCaption}</p>
+      <p className="max-w-prose text-body leading-relaxed text-muted">{t.diagramCaption}</p>
     </div>
   )
 }

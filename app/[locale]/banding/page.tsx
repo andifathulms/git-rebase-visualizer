@@ -21,10 +21,10 @@ export default function ComparePage({ params }: { params: { locale: string } }) 
 
       <main id="main" className="mx-auto max-w-6xl px-6 pb-20 pt-10">
         <p className="label">{t.compare}</p>
-        <h1 className="mt-3 font-display text-3xl uppercase tracking-tight sm:text-4xl">
+        <h1 className="mt-3 font-display text-title uppercase tracking-tight sm:text-display">
           {en ? 'Two ways to integrate' : 'Dua cara menggabungkan'}
         </h1>
-        <p className="mt-4 max-w-prose text-[17px] leading-relaxed text-muted">
+        <p className="mt-4 max-w-prose text-lede leading-relaxed text-muted">
           {en
             ? 'The same starting state, two integrations side by side. Look at the shape of the history, then look at the file content — the second one is the surprise.'
             : 'Keadaan awal yang sama, dua integrasi berdampingan. Perhatikan bentuk riwayatnya, lalu perhatikan isi filenya — yang kedua itu kejutannya.'}

@@ -63,19 +63,19 @@ export function CommitInspector({
 
       <div className="panel-body space-y-3">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className="font-mono text-[15px] text-ink">{shortOid(oid)}</span>
-          <span className="text-[14px] leading-snug text-ink">
+          <span className="font-mono text-body text-ink">{shortOid(oid)}</span>
+          <span className="text-note leading-snug text-ink">
             {commit.message.split('\n')[0]}
           </span>
         </div>
 
         {!reachable ? (
-          <p className="border-l-2 border-faded bg-shelf/40 px-3 py-2 text-[12px] leading-relaxed text-muted">
+          <p className="border-l-2 border-faded bg-shelf/40 px-3 py-2 text-label leading-relaxed text-muted">
             {t.inspectorUnreachable}
           </p>
         ) : null}
 
-        <dl className="grid gap-x-4 gap-y-2 text-[12px] sm:grid-cols-[8rem_minmax(0,1fr)]">
+        <dl className="grid gap-x-4 gap-y-2 text-label sm:grid-cols-[8rem_minmax(0,1fr)]">
           <dt className="label">{t.inspectorFullOid}</dt>
           <dd className="break-all font-mono text-muted">{oid}</dd>
 
@@ -114,7 +114,7 @@ export function CommitInspector({
                 {refs.map((ref) => (
                   <span
                     key={ref}
-                    className="border border-catalogue px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.12em] text-catalogue"
+                    className="border border-catalogue px-2 py-0.5 font-display text-label uppercase tracking-[0.12em] text-catalogue"
                   >
                     {shortRef(ref)}
                   </span>

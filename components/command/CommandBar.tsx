@@ -133,7 +133,7 @@ export function CommandBar({
 
       {reference ? (
         <div className="max-h-56 overflow-y-auto border-b border-ink/10 bg-shelf/30 px-3 py-2.5">
-          <p className="mb-2 max-w-prose text-[12px] leading-relaxed text-muted">
+          <p className="mb-2 max-w-prose text-label leading-relaxed text-muted">
             {t.referenceIntro}
           </p>
           <dl className="grid gap-x-3 gap-y-1.5 sm:grid-cols-[7rem_minmax(0,1fr)]">
@@ -143,12 +143,12 @@ export function CommandBar({
                   <button
                     type="button"
                     onClick={() => offer(`${command} `)}
-                    className="font-mono text-[12px] text-catalogue underline decoration-catalogue/30 underline-offset-2 hover:decoration-catalogue"
+                    className="font-mono text-label text-catalogue underline decoration-catalogue/30 underline-offset-2 hover:decoration-catalogue"
                   >
                     {command}
                   </button>
                 </dt>
-                <dd className="text-[12px] leading-snug text-muted">{help[command]}</dd>
+                <dd className="text-label leading-snug text-muted">{help[command]}</dd>
               </div>
             ))}
           </dl>
@@ -157,12 +157,12 @@ export function CommandBar({
 
       <div className="min-h-[10rem] flex-1 overflow-y-auto px-3 py-2.5">
         {output.length === 0 ? (
-          <p className="text-[13px] leading-relaxed text-muted">{t.commandHint}</p>
+          <p className="text-note leading-relaxed text-muted">{t.commandHint}</p>
         ) : (
           output.map((line) => (
             <pre
               key={line.id}
-              className={`whitespace-pre-wrap font-mono text-[12.5px] leading-relaxed ${TONE[line.kind]}`}
+              className={`whitespace-pre-wrap font-mono text-note leading-relaxed ${TONE[line.kind]}`}
             >
               {line.kind === 'input' ? (
                 <>
@@ -185,7 +185,7 @@ export function CommandBar({
             key={line}
             type="button"
             onClick={() => offer(line)}
-            className="border border-ink/20 bg-paper px-2 py-0.5 font-mono text-[11.5px] text-muted transition-colors hover:border-catalogue hover:text-catalogue"
+            className="border border-ink/20 bg-paper px-2 py-0.5 font-mono text-label text-muted transition-colors hover:border-catalogue hover:text-catalogue"
           >
             {line}
           </button>
@@ -196,7 +196,7 @@ export function CommandBar({
         onSubmit={submit}
         className="flex items-center gap-2 border-t border-ink/10 bg-shelf/30 px-3 py-2.5"
       >
-        <span className="font-mono text-[15px] text-catalogue">$</span>
+        <span className="font-mono text-body text-catalogue">$</span>
         <input
           ref={input}
           value={value}
@@ -206,7 +206,7 @@ export function CommandBar({
           autoComplete="off"
           aria-label="git command"
           placeholder="rebase main"
-          className="w-full bg-transparent font-mono text-[14px] text-ink outline-none placeholder:text-muted/70"
+          className="w-full bg-transparent font-mono text-note text-ink outline-none placeholder:text-muted/70"
         />
       </form>
     </section>

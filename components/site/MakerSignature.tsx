@@ -84,7 +84,7 @@ export function MakerSignature({ madeBy }: { madeBy: string }) {
   const year = new Date().getFullYear()
 
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] text-muted">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-label text-muted">
       <p>
         {madeBy}{' '}
         <a

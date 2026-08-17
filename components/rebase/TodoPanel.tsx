@@ -122,10 +122,10 @@ export function TodoPanel({
         </div>
       </header>
 
-      {error ? <p className="px-3 py-2 font-mono text-[12.5px] text-stamp">{error}</p> : null}
+      {error ? <p className="px-3 py-2 font-mono text-note text-stamp">{error}</p> : null}
 
       {steps === null ? (
-        <p className="px-3 py-2.5 text-[12.5px] leading-relaxed text-muted">
+        <p className="px-3 py-2.5 text-note leading-relaxed text-muted">
           {t.todoIntro}
         </p>
       ) : (
@@ -148,8 +148,8 @@ export function TodoPanel({
                       </option>
                     ))}
                   </select>
-                  <span className="font-mono text-[12px] text-muted">{shortOid(step.oid)}</span>
-                  <span className="flex-1 truncate text-[13px] text-ink">
+                  <span className="font-mono text-label text-muted">{shortOid(step.oid)}</span>
+                  <span className="flex-1 truncate text-note text-ink">
                     {subject(step.oid)}
                   </span>
                   <button
@@ -169,7 +169,7 @@ export function TodoPanel({
                     ↓
                   </button>
                 </div>
-                <p className="mt-1.5 text-[11.5px] text-muted">{explain[step.action]}</p>
+                <p className="mt-1.5 text-label text-muted">{explain[step.action]}</p>
                 {step.action === 'reword' || step.action === 'squash' ? (
                   <input
                     value={step.message ?? ''}
@@ -184,7 +184,7 @@ export function TodoPanel({
           </ol>
 
           <div className="flex items-center justify-between gap-2 border-t border-ink/10 px-3 py-2.5">
-            <p className="text-[11.5px] leading-snug text-muted">
+            <p className="text-label leading-snug text-muted">
               {steps.filter((step) => step.action !== 'drop').length} {t.willBeRewritten}
             </p>
             <button
